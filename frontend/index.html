@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>World Wild Life</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+	<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+	<header id="site-header">
+		<div class="header-inner">
+			<span class="logo">🌍</span>
+			<div>
+				<h1>World Wild Life</h1>
+				<p>Explorez les espèces animales du monde, leurs habitats et leurs statuts de conservation.</p>
+			</div>
+		</div>
+	</header>
+
+	<main>
+		<section id="dashboard" class="panel">
+			<h2>Aperçu global</h2>
+			<div class="kpi-row">
+				<div class="kpi-card">
+					<span class="kpi-value" id="kpi-total">–</span>
+					<span class="kpi-label">Espèces référencées</span>
+				</div>
+				<div class="kpi-card kpi-card--warning">
+					<span class="kpi-value" id="kpi-threatened">–</span>
+					<span class="kpi-label">Espèces menacées (VU/EN/CR)</span>
+				</div>
+				<div class="kpi-card">
+					<span class="kpi-value" id="kpi-habitats">–</span>
+					<span class="kpi-label">Habitats couverts</span>
+				</div>
+			</div>
+			<div class="chart-row">
+				<div class="chart-container">
+					<h3>Répartition par statut UICN</h3>
+					<canvas id="status-chart"></canvas>
+				</div>
+				<div class="chart-container">
+					<h3>Espèces par habitat</h3>
+					<canvas id="habitat-chart"></canvas>
+				</div>
+			</div>
+		</section>
+
+		<section id="map-section" class="panel">
+			<h2>Carte des régions</h2>
+			<div id="map"></div>
+			<div id="region-species"></div>
+		</section>
+
+		<section id="explorer" class="panel">
+			<h2>Explorer les espèces</h2>
+			<div id="filters">
+				<input type="search" id="search-input" placeholder="Rechercher une espèce (min. 2 caractères)...">
+				<select id="filter-habitat"><option value="">Tous les habitats</option></select>
+				<select id="filter-diet"><option value="">Tous les régimes</option></select>
+				<select id="filter-status"><option value="">Tous les statuts</option></select>
+			</div>
+
+			<p id="result-info"></p>
+
+			<ul id="species-list"></ul>
+
+			<div id="pagination"></div>
+		</section>
+
+		<section id="species-detail"></section>
+	</main>
+
+	<footer id="site-footer">
+		<p>World Wild Life — Données de conservation à but éducatif.</p>
+	</footer>
+
+	<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+	<script type="module" src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+# Local Netlify folder
+.netlify
+
+# Wrangler local state (D1/KV data, cache)
+.wrangler
+
+# macOS
+.DS_Store
+
+# Node
+node_modules

@@ -1,0 +1,15 @@
+name = "world-wild-life-api"
+main = "src/index.js"
+compatibility_date = "2026-06-24"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "world-wild-life-db"
+database_id = "93d45722-cb5b-4c01-a4b3-ad5c9e8f57eb"
+
+[[kv_namespaces]]
+binding = "CACHE"
+id = "deb8790c1373494eb1e3fcb3e0fb9ac6"
+
+[observability]
+enabled = true
