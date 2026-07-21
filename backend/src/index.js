@@ -4,6 +4,7 @@ import { listRegions, getRegionSpecies } from "./routes/regions.js";
 import { searchSpecies } from "./routes/search.js";
 import { listFilters } from "./routes/filters.js";
 import { getStats } from "./routes/stats.js";
+import { getLiveIucnStatus } from "./routes/iucn.js";
 
 export default {
 	async fetch(request, env) {
@@ -15,11 +16,14 @@ export default {
 		}
 
 		const speciesIdMatch = pathname.match(/^\/species\/(\d+)$/);
+		const speciesIucnMatch = pathname.match(/^\/species\/(\d+)\/iucn$/);
 		const regionSpeciesMatch = pathname.match(/^\/regions\/(\d+)\/species$/);
 
 		let response;
 		if (pathname === "/species" && request.method === "GET") {
 			response = await listSpecies(request, env);
+		} else if (speciesIucnMatch && request.method === "GET") {
+			response = await getLiveIucnStatus(speciesIucnMatch[1], env);
 		} else if (speciesIdMatch && request.method === "GET") {
 			response = await getSpecies(speciesIdMatch[1], env);
 		} else if (pathname === "/search" && request.method === "GET") {

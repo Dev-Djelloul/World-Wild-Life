@@ -9,7 +9,7 @@ export async function searchSpecies(request, env) {
 
 	const like = `%${q}%`;
 	const { results } = await env.DB.prepare(
-		`SELECT id, name_common, name_scientific, habitat, diet, conservation_status
+		`SELECT id, name_common, name_scientific, habitat, diet, conservation_status, image_url
 		 FROM SPECIES
 		 WHERE name_common LIKE ? OR name_scientific LIKE ? OR habitat LIKE ? OR description LIKE ?
 		 ORDER BY name_common

@@ -29,6 +29,7 @@ function renderList(species) {
 
 	listEl.innerHTML = species.map(s => `
 		<li class="species-card" data-id="${s.id}" tabindex="0">
+			${s.image_url ? `<img class="species-thumb" src="${s.image_url}" alt="${s.name_common}" onerror="this.remove()">` : ""}
 			<strong>${s.name_common}</strong>
 			<em>${s.name_scientific}</em>
 			<div class="status">
@@ -77,6 +78,7 @@ async function showDetail(id) {
 		const regions = s.regions.map(r => `${r.name} (${r.presence})`).join(", ");
 		detailEl.innerHTML = `
 			<div class="detail-card">
+				${s.image_url ? `<img class="detail-thumb" src="${s.image_url}" alt="${s.name_common}">` : ""}
 				<h2>${s.name_common} <em>(${s.name_scientific})</em></h2>
 				<div class="detail-meta">
 					<span><span class="status-badge status-${s.conservation_status}">${s.conservation_status}</span> Statut UICN</span>

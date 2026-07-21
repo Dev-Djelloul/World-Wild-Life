@@ -1,6 +1,35 @@
 import { fetchRegions, fetchRegionSpecies } from "./api-client.js";
 
+// GeoJSON des frontières de pays par continent (Natural Earth, domaine public,
+// via click_that_hood). Chargé à la demande au clic sur une région.
+const GEOJSON_BY_REGION = {
+	"Afrique": "africa",
+	"Amérique du Sud": "south-america",
+	"Amérique du Nord": "north-america",
+	"Asie": "asia",
+	"Europe": "europe",
+	"Océanie": "oceania",
+	// Antarctique et Océans mondiaux : pas de polygone continental pertinent, marqueur seul.
+};
+
+const GEOJSON_BASE_URL = "https://raw.githubusercontent.com/codeforgermany/click_that_hood/main/public/data";
+
 let mapInstance = null;
+let boundaryLayer = null;
+const geojsonCache = new Map();
+
+async function loadRegionBoundary(regionName) {
+	const slug = GEOJSON_BY_REGION[regionName];
+	if (!slug) return null;
+
+	if (geojsonCache.has(slug)) return geojsonCache.get(slug);
+
+	const res = await fetch(`${GEOJSON_BASE_URL}/${slug}.geojson`);
+	if (!res.ok) return null;
+	const data = await res.json();
+	geojsonCache.set(slug, data);
+	return data;
+}
 
 export async function initMap(onRegionSelect) {
 	const mapEl = document.getElementById("map");
@@ -20,7 +49,26 @@ export async function initMap(onRegionSelect) {
 		const marker = window.L.marker([region.latitude, region.longitude]).addTo(mapInstance);
 		marker.bindPopup(`<strong>${region.name}</strong><br>${region.description || ""}`);
 		marker.on("click", async () => {
-			mapInstance.setView([region.latitude, region.longitude], 4);
+			mapInstance.setView([region.latitude, region.longitude], 3);
+
+			if (boundaryLayer) {
+				mapInstance.removeLayer(boundaryLayer);
+				boundaryLayer = null;
+			}
+
+			const geojson = await loadRegionBoundary(region.name);
+			if (geojson) {
+				boundaryLayer = window.L.geoJSON(geojson, {
+					style: {
+						color: "#1f4d36",
+						weight: 1.5,
+						fillColor: "#2f6b4a",
+						fillOpacity: 0.25,
+					},
+				}).addTo(mapInstance);
+				boundaryLayer.bringToBack();
+			}
+
 			const data = await fetchRegionSpecies(region.id, 20);
 			onRegionSelect(data);
 		});

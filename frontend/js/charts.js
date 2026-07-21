@@ -6,6 +6,7 @@ const STATUS_COLORS = {
 	VU: "#ffc107",
 	EN: "#ff9800",
 	CR: "#e53935",
+	DD: "#9e9e9e",
 };
 
 const STATUS_LABELS = {
@@ -14,6 +15,7 @@ const STATUS_LABELS = {
 	VU: "Vulnérable",
 	EN: "En danger",
 	CR: "En danger critique",
+	DD: "Données insuffisantes",
 };
 
 let statusChart = null;
@@ -29,7 +31,7 @@ export async function initDashboard() {
 		(stats.by_status.VU || 0) + (stats.by_status.EN || 0) + (stats.by_status.CR || 0);
 	document.getElementById("kpi-habitats").textContent = Object.keys(stats.by_habitat).length;
 
-	const statusOrder = ["LC", "NT", "VU", "EN", "CR"];
+	const statusOrder = ["LC", "NT", "VU", "EN", "CR", "DD"];
 	const statusLabels = statusOrder.filter(s => stats.by_status[s] !== undefined);
 	const statusData = statusLabels.map(s => stats.by_status[s]);
 

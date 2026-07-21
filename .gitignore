@@ -9,3 +9,6 @@
 
 # Node
 node_modules
+
+# Secrets (local wrangler dev env vars)
+.dev.vars

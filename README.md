@@ -23,12 +23,13 @@ world-wild-life/
 │   └── js/
 │       ├── main.js          # orchestration UI (état, événements)
 │       ├── api-client.js    # appels à l'API
-│       ├── map.js           # carte Leaflet
+│       ├── map.js           # carte Leaflet + frontières GeoJSON
 │       ├── charts.js        # graphiques Chart.js
 │       └── search.js        # utilitaire debounce
 │
 ├── backend/
 │   ├── wrangler.toml
+│   ├── .dev.vars             # secrets locaux (gitignoré) — IUCN_API_TOKEN
 │   ├── src/
 │   │   ├── index.js         # routeur principal
 │   │   └── routes/
@@ -36,7 +37,8 @@ world-wild-life/
 │   │       ├── regions.js   # régions + espèces par région
 │   │       ├── search.js    # recherche full-text
 │   │       ├── filters.js   # valeurs distinctes (dropdowns)
-│   │       └── stats.js     # statistiques globales
+│   │       ├── stats.js     # statistiques globales
+│   │       └── iucn.js      # proxy live vers l'API IUCN Red List
 │   ├── middleware/cors.js
 │   └── db/
 │       ├── schema.sql
@@ -61,6 +63,14 @@ npx wrangler d1 execute world-wild-life-db --local --file=db/schema.sql
 npx wrangler d1 execute world-wild-life-db --local --file=db/seed.sql
 ```
 
+Pour tester la route IUCN en local, créer `backend/.dev.vars` :
+
+```
+IUCN_API_TOKEN=<votre-token>
+```
+
+(inscription gratuite sur [api.iucnredlist.org](https://api.iucnredlist.org/users/sign_up))
+
 ### Frontend
 
 ```bash
@@ -79,6 +89,7 @@ cd backend
 npx wrangler deploy
 npx wrangler d1 execute world-wild-life-db --remote --file=db/schema.sql
 npx wrangler d1 execute world-wild-life-db --remote --file=db/seed.sql
+npx wrangler secret put IUCN_API_TOKEN
 ```
 
 **Frontend (Netlify) :**
@@ -93,6 +104,7 @@ netlify deploy --prod --dir=frontend
 |---|---|
 | `GET /species` | Liste paginée. Query : `page`, `limit`, `habitat`, `diet`, `status`, `region_id` |
 | `GET /species/:id` | Détail d'une espèce + régions associées |
+| `GET /species/:id/iucn` | Statut de conservation en direct depuis l'API IUCN Red List (caché 24h en KV) |
 | `GET /search?q=` | Recherche full-text (nom commun, scientifique, habitat, description) |
 | `GET /regions` | Liste des régions (caché en KV, TTL 1h) |
 | `GET /regions/:id/species` | Espèces d'une région, paginé |
@@ -115,19 +127,23 @@ Voir [backend/db/seed.sql](backend/db/seed.sql) pour le détail.
 | Ressource | Statut | Détail |
 |---|---|---|
 | OpenStreetMap (tuiles) | ✅ Intégré | Fond de carte Leaflet en Phase 3 |
-| IUCN Red List API | ⏳ Non intégré | Statuts UICN saisis manuellement, biologiquement réalistes mais non synchronisés en direct |
+| GeoJSON (frontières régions) | ✅ Intégré | Frontières de pays réelles (Natural Earth, domaine public, via click_that_hood) affichées au clic sur 6/8 régions — chargées à la demande |
+| Wikimedia Commons (images) | ✅ Intégré | 250/250 espèces ont une vraie photo, récupérée via l'API Wikipedia par nom scientifique, vérifiée sans doublon |
+| IUCN Red List API | ✅ Intégré | Synchronisation batch des 250 statuts (14 corrections réelles appliquées) + route live `GET /species/:id/iucn` (proxy sécurisé, token en secret Cloudflare) |
 | WikiData API | ⏳ Non intégré | — |
-| GeoJSON (frontières régions) | ⏳ Non intégré | Régions représentées par un point (lat/lng), pas par un polygone |
-| Unsplash (images) | ⚠️ Partiel | URLs `source.unsplash.com/?<mot-clé>` (redirection), pas de photos sélectionnées manuellement ni vérifiées |
-| Pexels | ⏳ Non intégré | — |
-| Wikimedia Commons | ⏳ Non intégré | — |
+| Pexels | ⏳ Non intégré | Superflu, couvert par Wikimedia |
 | NCBI Taxonomy | ⏳ Non intégré | Champs kingdom/phylum/class saisis manuellement |
 | Encyclopedia of Life | ⏳ Non intégré | — |
 
-Ces intégrations ne faisaient pas partie du périmètre des Phases 1 à 3 (voir `ARCHITECTURE.md` section 7) et restent une piste d'évolution.
+### Notes sur l'intégration IUCN
 
-## Roadmap restante (Phase 3)
+- Un compte gratuit sur [api.iucnredlist.org](https://api.iucnredlist.org/users/sign_up) est nécessaire pour obtenir un token.
+- Certaines espèces n'ont pas d'évaluation IUCN pour des raisons légitimes : espèces domestiquées non évaluées globalement (ex. dromadaire), ou synonymes taxonomiques non reconnus par l'API (ex. *Taurotragus oryx* vs *Tragelaphus oryx*).
+- Un même taxon peut avoir plusieurs évaluations "latest" simultanées à des échelles différentes (ex. Europe vs Global) — le code filtre explicitement sur le scope global (code `"1"`) pour éviter d'appliquer un statut régional par erreur.
+- Le statut `DD` (Data Deficient) est un statut UICN légitime, désormais supporté par l'UI (ex. l'orque *Orcinus orca* n'est pas évaluée mondialement en raison d'incertitudes taxonomiques sur ses écotypes).
+
+## Roadmap restante
 
 - [ ] Tests unitaires et d'intégration
-- [ ] Remplacement des URLs d'images placeholder par des images réelles vérifiées
-- [ ] Intégration IUCN Red List API pour des statuts de conservation à jour
+- [ ] Intégration WikiData / NCBI Taxonomy pour enrichir la taxonomie
+- [ ] Rafraîchissement automatique périodique des statuts IUCN (actuellement synchronisation manuelle + route live à la demande)
