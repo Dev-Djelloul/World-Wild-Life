@@ -187,8 +187,22 @@ function renderRegionSpecies(data) {
 	});
 }
 
+function bindBackToTop() {
+	const btn = document.getElementById("back-to-top");
+	if (!btn) return;
+
+	window.addEventListener("scroll", () => {
+		btn.classList.toggle("visible", window.scrollY > 500);
+	});
+
+	btn.addEventListener("click", () => {
+		window.scrollTo({ top: 0, behavior: "smooth" });
+	});
+}
+
 async function init() {
 	bindFilterEvents();
+	bindBackToTop();
 	await populateFilters();
 	await loadList();
 	await initMap(renderRegionSpecies);
