@@ -168,10 +168,23 @@ function renderRegionSpecies(data) {
 	container.innerHTML = `
 		<h3>Espèces en ${data.region} (${data.total})</h3>
 		<ul class="region-species-list">
-			${data.species.map(s => `<li>${s.name_common} <em>(${s.name_scientific})</em> — ${s.conservation_status}</li>`).join("")}
+			${data.species.map(s => `
+				<li class="region-species-item" data-id="${s.id}" tabindex="0">
+					<span class="status-badge status-${s.conservation_status}">${s.conservation_status}</span>
+					${s.name_common} <em>(${s.name_scientific})</em>
+				</li>
+			`).join("")}
 		</ul>
 	`;
-	container.scrollIntoView({ behavior: "smooth" });
+	container.querySelectorAll(".region-species-item").forEach(item => {
+		item.addEventListener("click", () => showDetail(item.dataset.id));
+		item.addEventListener("keydown", (e) => {
+			if (e.key === "Enter" || e.key === " ") {
+				e.preventDefault();
+				showDetail(item.dataset.id);
+			}
+		});
+	});
 }
 
 async function init() {

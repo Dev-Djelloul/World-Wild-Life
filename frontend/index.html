@@ -6,14 +6,23 @@
 	<title>World Wild Life</title>
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-	<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,600;0,700;1,500&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 	<link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 	<header id="site-header">
+		<svg class="header-foliage" viewBox="0 0 400 200" preserveAspectRatio="none" aria-hidden="true">
+			<path d="M0,200 Q40,120 90,150 Q110,100 150,130 Q170,70 210,110 Q240,60 280,100 Q320,60 360,95 Q385,80 400,90 L400,200 Z" fill="rgba(255,255,255,0.06)"/>
+			<path d="M0,200 Q30,150 70,170 Q100,130 140,155 Q165,110 200,140 Q230,100 270,130 Q300,105 330,125 Q365,110 400,120 L400,200 Z" fill="rgba(255,255,255,0.10)"/>
+		</svg>
 		<div class="header-inner">
-			<span class="logo">🌍</span>
+			<svg class="logo" viewBox="0 0 64 64" role="img" aria-label="World Wild Life">
+				<circle cx="32" cy="32" r="30" fill="#0f2e1e"/>
+				<path d="M32 50c-10-6-16-14-16-24 0-8 6-14 14-14 1 0 2 0 2 .5 0-.5 1-.5 2-.5 8 0 14 6 14 14 0 10-6 18-16 24z" fill="#7fb069"/>
+				<path d="M32 50V16" stroke="#0f2e1e" stroke-width="1.5" stroke-linecap="round"/>
+				<path d="M32 24c-3 2-6 3-9 3M32 32c-4 2-7 3-10 3M32 40c-3 2-5 3-8 3" stroke="#0f2e1e" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+			</svg>
 			<div>
 				<h1>World Wild Life</h1>
 				<p>Explorez les espèces animales du monde, leurs habitats et leurs statuts de conservation.</p>
@@ -23,7 +32,7 @@
 
 	<main>
 		<section id="dashboard" class="panel">
-			<h2>Aperçu global</h2>
+			<h2><svg class="section-icon" viewBox="0 0 24 24"><path d="M12 2c-4 4-7 8-7 12a7 7 0 0014 0c0-4-3-8-7-12z"/></svg>Aperçu global</h2>
 			<div class="kpi-row">
 				<div class="kpi-card">
 					<span class="kpi-value" id="kpi-total">–</span>
@@ -51,13 +60,13 @@
 		</section>
 
 		<section id="map-section" class="panel">
-			<h2>Carte des régions</h2>
+			<h2><svg class="section-icon" viewBox="0 0 24 24"><path d="M12 2a7 7 0 00-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 00-7-7zm0 9.5A2.5 2.5 0 1112 6a2.5 2.5 0 010 5.5z"/></svg>Carte des régions</h2>
 			<div id="map"></div>
 			<div id="region-species"></div>
 		</section>
 
 		<section id="explorer" class="panel">
-			<h2>Explorer les espèces</h2>
+			<h2><svg class="section-icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 10-.7.7l.27.28v.79l5 4.99L20.49 19zm-6 0A4.5 4.5 0 1114 9.5 4.5 4.5 0 0110 14.5z"/></svg>Explorer les espèces</h2>
 			<div id="filters">
 				<input type="search" id="search-input" placeholder="Rechercher une espèce (min. 2 caractères)...">
 				<select id="filter-habitat"><option value="">Tous les habitats</option></select>
@@ -76,6 +85,7 @@
 	</main>
 
 	<footer id="site-footer">
+		<svg class="footer-leaf" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2c-4 4-7 8-7 12a7 7 0 0014 0c0-4-3-8-7-12z"/></svg>
 		<p>World Wild Life — Données de conservation à but éducatif.</p>
 	</footer>
 

@@ -13,6 +13,10 @@ const GEOJSON_BY_REGION = {
 };
 
 const GEOJSON_BASE_URL = "https://raw.githubusercontent.com/codeforgermany/click_that_hood/main/public/data";
+const WORLD_BOUNDS = [
+	[-85, -200],
+	[85, 200],
+];
 
 let mapInstance = null;
 let boundaryLayer = null;
@@ -35,11 +39,24 @@ export async function initMap(onRegionSelect) {
 	const mapEl = document.getElementById("map");
 	if (!mapEl || !window.L) return;
 
-	mapInstance = window.L.map("map").setView([10, 20], 2);
+	mapInstance = window.L.map("map", {
+		center: [15, 10],
+		zoom: 2,
+		minZoom: 2,
+		maxZoom: 7,
+		worldCopyJump: false,
+		maxBounds: WORLD_BOUNDS,
+		maxBoundsViscosity: 1.0,
+		scrollWheelZoom: false,
+	});
+
+	mapEl.addEventListener("click", () => mapInstance.scrollWheelZoom.enable());
+	mapEl.addEventListener("mouseleave", () => mapInstance.scrollWheelZoom.disable());
 
 	window.L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
 		attribution: "&copy; OpenStreetMap contributors",
-		maxZoom: 8,
+		maxZoom: 7,
+		noWrap: true,
 	}).addTo(mapInstance);
 
 	const regions = await fetchRegions();
