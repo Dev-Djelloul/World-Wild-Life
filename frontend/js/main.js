@@ -288,6 +288,35 @@ async function populateFilters() {
 	}
 }
 
+function renderRegionQuickList(region, data) {
+	const container = document.getElementById("region-species");
+
+	// Construite à partir des mêmes données que le catalogue filtré ci-dessous
+	// (page courante) — jamais de décalage possible avec le total affiché.
+	container.innerHTML = `
+		<h3>Espèces en ${region.name} (${data.total})</h3>
+		<ul class="region-species-list">
+			${data.species.map(s => `
+				<li class="region-species-item" data-id="${s.id}" tabindex="0">
+					<span class="status-badge status-${s.conservation_status}">${s.conservation_status}</span>
+					${s.name_common} <em>(${s.name_scientific})</em>
+				</li>
+			`).join("")}
+		</ul>
+		${data.total > data.species.length ? `<p class="region-species-more">+ ${data.total - data.species.length} autre(s) — voir le catalogue ci-dessous ↓</p>` : ""}
+	`;
+
+	container.querySelectorAll(".region-species-item").forEach(item => {
+		item.addEventListener("click", () => showDetail(item.dataset.id));
+		item.addEventListener("keydown", (e) => {
+			if (e.key === "Enter" || e.key === " ") {
+				e.preventDefault();
+				showDetail(item.dataset.id);
+			}
+		});
+	});
+}
+
 async function selectRegion(region) {
 	state.regionId = region.id;
 	state.regionName = region.name;
@@ -300,11 +329,11 @@ async function selectRegion(region) {
 
 	const data = await loadList();
 
-	container.innerHTML = data
-		? `<p>${data.total} espèce(s) en ${region.name} — affichées dans le catalogue ci-dessous ↓</p>`
-		: "";
-
-	document.getElementById("explorer")?.scrollIntoView({ behavior: "smooth" });
+	if (data) {
+		renderRegionQuickList(region, data);
+	} else {
+		container.innerHTML = "";
+	}
 }
 
 function bindBackToTop() {

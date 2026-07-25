@@ -205,6 +205,43 @@ main {
 	display: none;
 }
 
+#region-species h3 {
+	font-family: var(--font-display);
+	color: var(--color-primary);
+	margin-bottom: 0.75rem;
+	font-size: 1.05rem;
+}
+
+.region-species-list {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+	max-height: 560px;
+	overflow-y: auto;
+	display: grid;
+	gap: 0.4rem;
+}
+
+.region-species-item {
+	padding: 0.5rem 0.75rem;
+	border-radius: 8px;
+	background: #f6f3ea;
+	font-size: 0.88rem;
+	cursor: pointer;
+	transition: background 0.15s ease;
+}
+
+.region-species-item:hover,
+.region-species-item:focus-visible {
+	background: #e6ede3;
+	outline: none;
+}
+
+.region-species-more {
+	margin: 0.6rem 0 0;
+	font-size: 0.8rem;
+}
+
 /* ---------- Filters ---------- */
 
 #filters {
