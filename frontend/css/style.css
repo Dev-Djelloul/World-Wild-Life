@@ -434,6 +434,48 @@ main {
 	font-size: 0.9rem;
 }
 
+.detail-enrichments {
+	display: grid;
+	gap: 0.5rem 1.5rem;
+	margin-top: 1rem;
+}
+
+.enrichment-block:empty {
+	display: none;
+}
+
+.enrichment-block h4 {
+	margin: 0.75rem 0 0.25rem;
+	font-size: 0.85rem;
+	text-transform: uppercase;
+	letter-spacing: 0.03em;
+	color: var(--color-text-muted);
+}
+
+.enrichment-block p {
+	margin: 0;
+	font-size: 0.9rem;
+}
+
+.photo-gallery {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	margin-top: 0.5rem;
+}
+
+.photo-gallery img {
+	width: 90px;
+	height: 90px;
+	object-fit: cover;
+	border-radius: 6px;
+	transition: transform 0.15s ease;
+}
+
+.photo-gallery img:hover {
+	transform: scale(1.05);
+}
+
 /* ---------- Footer ---------- */
 
 #site-footer {

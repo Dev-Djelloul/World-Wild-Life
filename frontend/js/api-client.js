@@ -48,3 +48,17 @@ export async function fetchStats() {
 	if (!response.ok) throw new Error("Erreur lors du chargement des statistiques");
 	return response.json();
 }
+
+// Enrichissements : chacun peut échouer ou n'avoir aucune donnée indépendamment
+// des autres (ex. Pexels sans clé configurée) — jamais bloquant pour la fiche détail.
+async function fetchEnrichment(path) {
+	const response = await fetch(`${API_BASE_URL}${path}`);
+	if (!response.ok) return null;
+	return response.json();
+}
+
+export const fetchIucnStatus = (id) => fetchEnrichment(`/species/${id}/iucn`);
+export const fetchTaxonomy = (id) => fetchEnrichment(`/species/${id}/taxonomy`);
+export const fetchWikidata = (id) => fetchEnrichment(`/species/${id}/wikidata`);
+export const fetchEol = (id) => fetchEnrichment(`/species/${id}/eol`);
+export const fetchPhotos = (id) => fetchEnrichment(`/species/${id}/photos`);

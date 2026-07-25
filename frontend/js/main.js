@@ -1,4 +1,14 @@
-import { fetchSpecies, fetchSpeciesById, searchSpecies, fetchFilters } from "./api-client.js";
+import {
+	fetchSpecies,
+	fetchSpeciesById,
+	searchSpecies,
+	fetchFilters,
+	fetchIucnStatus,
+	fetchTaxonomy,
+	fetchWikidata,
+	fetchEol,
+	fetchPhotos,
+} from "./api-client.js";
 import { debounce } from "./search.js";
 import { initMap } from "./map.js";
 import { initDashboard } from "./charts.js";
@@ -70,11 +80,87 @@ function renderPagination(page, pages) {
 	});
 }
 
+let currentDetailId = null;
+
+function renderIucnEnrichment(id, data) {
+	if (currentDetailId !== id) return;
+	const el = document.getElementById("enrichment-iucn");
+	if (!el) return;
+	if (!data || !data.iucn_status) {
+		el.innerHTML = "";
+		return;
+	}
+	el.innerHTML = `
+		<h4>Statut IUCN en direct</h4>
+		<p>
+			<span class="status-badge status-${data.iucn_status}">${data.iucn_status}</span>
+			${data.assessment_year ? `Évalué en ${data.assessment_year}` : ""}
+			${data.assessment_url ? `— <a href="${data.assessment_url}" target="_blank" rel="noopener">voir l'évaluation</a>` : ""}
+		</p>
+	`;
+}
+
+function renderTaxonomyEnrichment(id, data) {
+	if (currentDetailId !== id) return;
+	const el = document.getElementById("enrichment-taxonomy");
+	if (!el) return;
+	if (!data || !data.class) {
+		el.innerHTML = "";
+		return;
+	}
+	el.innerHTML = `
+		<h4>Taxonomie (NCBI)</h4>
+		<p>${data.kingdom || "?"} &rsaquo; ${data.phylum || "?"} &rsaquo; ${data.class || "?"}</p>
+	`;
+}
+
+function renderLinksEnrichment(id, wikidata, eol) {
+	if (currentDetailId !== id) return;
+	const el = document.getElementById("enrichment-links");
+	if (!el) return;
+
+	const links = [];
+	if (wikidata?.wikidata_url) links.push(`<a href="${wikidata.wikidata_url}" target="_blank" rel="noopener">Wikidata</a>`);
+	if (wikidata?.iucn_status_wikidata) links.push(`Statut IUCN (Wikidata) : ${wikidata.iucn_status_wikidata}`);
+	if (eol?.eol_page_url) links.push(`<a href="${eol.eol_page_url}" target="_blank" rel="noopener">Encyclopedia of Life</a>`);
+
+	el.innerHTML = links.length ? `<h4>En savoir plus</h4><p>${links.join(" · ")}</p>` : "";
+}
+
+function renderPhotosEnrichment(id, data) {
+	if (currentDetailId !== id) return;
+	const el = document.getElementById("enrichment-photos");
+	if (!el) return;
+	if (!data?.photos?.length) {
+		el.innerHTML = "";
+		return;
+	}
+	el.innerHTML = `
+		<h4>Plus de photos (Pexels)</h4>
+		<div class="photo-gallery">
+			${data.photos.map(p => `
+				<a href="${p.pexels_url}" target="_blank" rel="noopener" title="Photo par ${p.photographer}">
+					<img src="${p.url}" alt="${data.name_common} — photo par ${p.photographer}" loading="lazy">
+				</a>
+			`).join("")}
+		</div>
+	`;
+}
+
+function loadEnrichments(id) {
+	fetchIucnStatus(id).then(data => renderIucnEnrichment(id, data));
+	fetchTaxonomy(id).then(data => renderTaxonomyEnrichment(id, data));
+	Promise.all([fetchWikidata(id), fetchEol(id)]).then(([wikidata, eol]) => renderLinksEnrichment(id, wikidata, eol));
+	fetchPhotos(id).then(data => renderPhotosEnrichment(id, data));
+}
+
 async function showDetail(id) {
+	currentDetailId = id;
 	detailEl.innerHTML = `<div class="detail-card">Chargement…</div>`;
 	detailEl.scrollIntoView({ behavior: "smooth" });
 	try {
 		const s = await fetchSpeciesById(id);
+		if (currentDetailId !== id) return;
 		const regions = s.regions.map(r => `${r.name} (${r.presence})`).join(", ");
 		detailEl.innerHTML = `
 			<div class="detail-card">
@@ -88,8 +174,15 @@ async function showDetail(id) {
 				</div>
 				<p>${s.description}</p>
 				<p><strong>Régions :</strong> ${regions || "Non renseigné"}</p>
+				<div class="detail-enrichments">
+					<div id="enrichment-iucn" class="enrichment-block"></div>
+					<div id="enrichment-taxonomy" class="enrichment-block"></div>
+					<div id="enrichment-links" class="enrichment-block"></div>
+					<div id="enrichment-photos" class="enrichment-block"></div>
+				</div>
 			</div>
 		`;
+		loadEnrichments(id);
 	} catch (err) {
 		detailEl.innerHTML = `<div class="detail-card">Impossible de charger les détails de cette espèce.</div>`;
 	}
