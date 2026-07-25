@@ -5,6 +5,7 @@ import { searchSpecies } from "./routes/search.js";
 import { listFilters } from "./routes/filters.js";
 import { getStats } from "./routes/stats.js";
 import { getLiveIucnStatus, syncAllIucnStatuses } from "./routes/iucn.js";
+import { getLiveTaxonomy, syncAllTaxonomies } from "./routes/taxonomy.js";
 
 export default {
 	async fetch(request, env) {
@@ -17,6 +18,7 @@ export default {
 
 		const speciesIdMatch = pathname.match(/^\/species\/(\d+)$/);
 		const speciesIucnMatch = pathname.match(/^\/species\/(\d+)\/iucn$/);
+		const speciesTaxonomyMatch = pathname.match(/^\/species\/(\d+)\/taxonomy$/);
 		const regionSpeciesMatch = pathname.match(/^\/regions\/(\d+)\/species$/);
 
 		let response;
@@ -24,6 +26,8 @@ export default {
 			response = await listSpecies(request, env);
 		} else if (speciesIucnMatch && request.method === "GET") {
 			response = await getLiveIucnStatus(speciesIucnMatch[1], env);
+		} else if (speciesTaxonomyMatch && request.method === "GET") {
+			response = await getLiveTaxonomy(speciesTaxonomyMatch[1], env);
 		} else if (speciesIdMatch && request.method === "GET") {
 			response = await getSpecies(speciesIdMatch[1], env);
 		} else if (pathname === "/search" && request.method === "GET") {
@@ -43,8 +47,13 @@ export default {
 		return withCors(response);
 	},
 
-	// Cron Trigger (voir wrangler.toml) : resynchronise périodiquement les statuts IUCN.
+	// Cron Triggers (voir wrangler.toml) : resynchronise périodiquement les statuts IUCN
+	// et la taxonomie (kingdom/phylum/class) via NCBI Taxonomy.
 	async scheduled(event, env, ctx) {
-		ctx.waitUntil(syncAllIucnStatuses(env));
+		if (event.cron === "0 4 * * SUN") {
+			ctx.waitUntil(syncAllTaxonomies(env));
+		} else {
+			ctx.waitUntil(syncAllIucnStatuses(env));
+		}
 	},
 };

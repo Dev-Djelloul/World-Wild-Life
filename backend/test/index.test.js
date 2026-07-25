@@ -1,5 +1,5 @@
 import { env } from "cloudflare:test";
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import worker from "../src/index.js";
 import { seedTestDb } from "./seed.js";
 
@@ -28,6 +28,18 @@ describe("router", () => {
 		const body = await res.json();
 
 		expect(body.name_common).toBe("Lion");
+	});
+
+	it("route GET /species/:id/taxonomy vers getLiveTaxonomy", async () => {
+		vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response("error", { status: 500 })));
+
+		const res = await worker.fetch(new Request("https://api/species/1/taxonomy"), env);
+		const body = await res.json();
+
+		expect(res.status).toBe(200);
+		expect(body.message).toBeDefined();
+
+		vi.unstubAllGlobals();
 	});
 
 	it("route GET /regions/:id/species vers getRegionSpecies", async () => {

@@ -40,7 +40,8 @@ world-wild-life/
 │   │       ├── search.js    # recherche full-text
 │   │       ├── filters.js   # valeurs distinctes (dropdowns)
 │   │       ├── stats.js     # statistiques globales
-│   │       └── iucn.js      # proxy live + synchro batch IUCN Red List
+│   │       ├── iucn.js      # proxy live + synchro batch IUCN Red List
+│   │       └── taxonomy.js  # proxy live + synchro batch NCBI Taxonomy
 │   ├── middleware/cors.js
 │   ├── db/
 │   │   ├── schema.sql
@@ -121,6 +122,7 @@ Tests unitaires et d'intégration (Vitest + [`@cloudflare/vitest-pool-workers`](
 | `GET /species` | Liste paginée. Query : `page`, `limit`, `habitat`, `diet`, `status`, `region_id` |
 | `GET /species/:id` | Détail d'une espèce + régions associées |
 | `GET /species/:id/iucn` | Statut de conservation en direct depuis l'API IUCN Red List (caché 24h en KV) |
+| `GET /species/:id/taxonomy` | Taxonomie (kingdom/phylum/class) en direct depuis NCBI Taxonomy (cachée 30j en KV) |
 | `GET /search?q=` | Recherche full-text (nom commun, scientifique, habitat, description) |
 | `GET /regions` | Liste des régions (caché en KV, TTL 1h) |
 | `GET /regions/:id/species` | Espèces d'une région, paginé |
@@ -146,9 +148,9 @@ Voir [backend/db/seed.sql](backend/db/seed.sql) pour le détail.
 | GeoJSON (frontières régions) | ✅ Intégré | Frontières de pays réelles (Natural Earth, domaine public, via click_that_hood) affichées au clic sur 6/8 régions — chargées à la demande |
 | Wikimedia Commons (images) | ✅ Intégré | 250/250 espèces ont une vraie photo, récupérée via l'API Wikipedia par nom scientifique, vérifiée sans doublon |
 | IUCN Red List API | ✅ Intégré | Synchronisation batch des 250 statuts (14 corrections réelles appliquées) + route live `GET /species/:id/iucn` (proxy sécurisé, token en secret Cloudflare) + rafraîchissement automatique hebdomadaire (Cron Trigger) |
-| WikiData API | ⏳ Non intégré | — |
+| NCBI Taxonomy | ✅ Intégré | Route live `GET /species/:id/taxonomy` (cachée 30j en KV) + rafraîchissement automatique hebdomadaire (Cron Trigger) qui vérifie/corrige kingdom, phylum et class pour les 250 espèces |
+| WikiData API | ⏳ Non intégré | Superflu, couvert par NCBI Taxonomy pour les rangs taxonomiques |
 | Pexels | ⏳ Non intégré | Superflu, couvert par Wikimedia |
-| NCBI Taxonomy | ⏳ Non intégré | Champs kingdom/phylum/class saisis manuellement |
 | Encyclopedia of Life | ⏳ Non intégré | — |
 
 ### Notes sur l'intégration IUCN
@@ -159,6 +161,12 @@ Voir [backend/db/seed.sql](backend/db/seed.sql) pour le détail.
 - Le statut `DD` (Data Deficient) est un statut UICN légitime, désormais supporté par l'UI (ex. l'orque *Orcinus orca* n'est pas évaluée mondialement en raison d'incertitudes taxonomiques sur ses écotypes).
 - **Rafraîchissement automatique** : un Cron Trigger Cloudflare Workers (`0 3 * * SUN`, chaque dimanche 3h UTC) exécute [`syncAllIucnStatuses`](backend/src/routes/iucn.js) qui reparcourt les 250 espèces par lots de 10 requêtes parallèles, met à jour `SPECIES.conservation_status` en cas de changement et rafraîchit le cache KV. Actif uniquement une fois déployé (`wrangler deploy`) — les crons ne se déclenchent pas en local avec `wrangler dev`. Test manuel possible via `npx wrangler dev --test-scheduled` puis `curl "http://localhost:8787/__scheduled?cron=0+3+*+*+SUN"`.
 
+### Notes sur l'intégration NCBI Taxonomy
+
+- Utilise l'API publique [eutils](https://www.ncbi.nlm.nih.gov/books/NBK25501/) (`esearch` puis `efetch` sur la base `taxonomy`), sans clé requise — limitée à 3 requêtes/seconde, respectée par un délai de 400ms entre espèces pendant la synchro batch.
+- NCBI utilise `Metazoa` comme rang `kingdom` pour les animaux ; le code le normalise en `Animalia` pour rester cohérent avec le reste du jeu de données.
+- **Rafraîchissement automatique** : un second Cron Trigger (`0 4 * * SUN`, chaque dimanche 4h UTC — décalé d'1h par rapport à la synchro IUCN) exécute [`syncAllTaxonomies`](backend/src/routes/taxonomy.js) qui vérifie/corrige `kingdom`, `phylum` et `class` pour les 250 espèces et rafraîchit le cache KV (TTL 30 jours, la taxonomie changeant très rarement).
+
 ## Roadmap restante
 
-- [ ] Intégration WikiData / NCBI Taxonomy pour enrichir la taxonomie
+Tous les chantiers identifiés ont été traités. Idées pour de futures itérations : Encyclopedia of Life (fiches espèces enrichies), tests end-to-end frontend, alerting sur échec de synchro cron.

@@ -15,4 +15,7 @@ id = "deb8790c1373494eb1e3fcb3e0fb9ac6"
 enabled = true
 
 [triggers]
-crons = ["0 3 * * SUN"] # chaque dimanche à 3h UTC — resynchronise les statuts IUCN
+crons = [
+	"0 3 * * SUN", # chaque dimanche à 3h UTC — resynchronise les statuts IUCN
+	"0 4 * * SUN", # chaque dimanche à 4h UTC — resynchronise la taxonomie (NCBI)
+]
