@@ -70,16 +70,16 @@ export async function initMap(onRegionSelect) {
 	const oceanGradient = defs.append("radialGradient")
 		.attr("id", "globe-ocean")
 		.attr("cx", "35%").attr("cy", "30%").attr("r", "80%");
-	oceanGradient.append("stop").attr("offset", "0%").attr("stop-color", "#8fc4d8");
-	oceanGradient.append("stop").attr("offset", "60%").attr("stop-color", "#5b9ab5");
-	oceanGradient.append("stop").attr("offset", "100%").attr("stop-color", "#31647f");
+	oceanGradient.append("stop").attr("offset", "0%").attr("stop-color", "#9fd8ea");
+	oceanGradient.append("stop").attr("offset", "55%").attr("stop-color", "#4d9fc4");
+	oceanGradient.append("stop").attr("offset", "100%").attr("stop-color", "#14536f");
 
 	// Ombrage sur le limbe pour donner du volume à la sphère.
 	const shadeGradient = defs.append("radialGradient")
 		.attr("id", "globe-shade")
 		.attr("cx", "35%").attr("cy", "30%").attr("r", "78%");
-	shadeGradient.append("stop").attr("offset", "70%").attr("stop-color", "rgba(0,0,0,0)");
-	shadeGradient.append("stop").attr("offset", "100%").attr("stop-color", "rgba(8, 32, 45, 0.45)");
+	shadeGradient.append("stop").attr("offset", "62%").attr("stop-color", "rgba(0,0,0,0)");
+	shadeGradient.append("stop").attr("offset", "100%").attr("stop-color", "rgba(3, 19, 31, 0.62)");
 
 	const glow = defs.append("filter").attr("id", "globe-glow").attr("x", "-40%").attr("y", "-40%").attr("width", "180%").attr("height", "180%");
 	glow.append("feGaussianBlur").attr("stdDeviation", "6").attr("result", "blur");

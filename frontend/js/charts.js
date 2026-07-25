@@ -1,13 +1,19 @@
 import { fetchStats } from "./api-client.js";
 
+// Palette UICN éclaircie pour rester lisible sur le fond océan sombre
+// (identique aux badges .status-* de la feuille de style).
 const STATUS_COLORS = {
-	LC: "#4caf50",
-	NT: "#8bc34a",
-	VU: "#ffc107",
-	EN: "#ff9800",
-	CR: "#e53935",
-	DD: "#9e9e9e",
+	LC: "#6ede8a",
+	NT: "#b5e26a",
+	VU: "#f5c85c",
+	EN: "#f79b5c",
+	CR: "#f5705f",
+	DD: "#b8c4c9",
 };
+
+const TEXT_COLOR = "#e8f4fa";
+const MUTED_COLOR = "#9fc2d4";
+const GRID_COLOR = "rgba(255, 255, 255, 0.10)";
 
 const STATUS_LABELS = {
 	LC: "Préoccupation mineure",
@@ -23,6 +29,9 @@ let habitatChart = null;
 
 export async function initDashboard() {
 	if (!window.Chart) return;
+
+	window.Chart.defaults.color = MUTED_COLOR;
+	window.Chart.defaults.font.family = "'Work Sans', system-ui, sans-serif";
 
 	const stats = await fetchStats();
 
@@ -44,12 +53,21 @@ export async function initDashboard() {
 			datasets: [{
 				data: statusData,
 				backgroundColor: statusLabels.map(s => STATUS_COLORS[s] || "#999"),
+				borderColor: "rgba(6, 47, 71, 0.55)",
+				borderWidth: 2,
+				hoverOffset: 6,
 			}],
 		},
 		options: {
 			responsive: true,
 			maintainAspectRatio: false,
-			plugins: { legend: { position: "bottom", labels: { boxWidth: 14, font: { size: 11 } } } },
+			cutout: "62%",
+			plugins: {
+				legend: {
+					position: "bottom",
+					labels: { boxWidth: 12, boxHeight: 12, usePointStyle: true, pointStyle: "circle", color: TEXT_COLOR, font: { size: 11 }, padding: 14 },
+				},
+			},
 		},
 	});
 
@@ -65,14 +83,27 @@ export async function initDashboard() {
 			datasets: [{
 				label: "Nombre d'espèces",
 				data: habitatData,
-				backgroundColor: "#2f5d3a",
+				backgroundColor: "rgba(95, 227, 192, 0.55)",
+				hoverBackgroundColor: "rgba(95, 227, 192, 0.8)",
+				borderRadius: 6,
+				borderSkipped: false,
 			}],
 		},
 		options: {
 			responsive: true,
 			maintainAspectRatio: false,
 			plugins: { legend: { display: false } },
-			scales: { y: { beginAtZero: true } },
+			scales: {
+				y: {
+					beginAtZero: true,
+					grid: { color: GRID_COLOR, drawBorder: false },
+					ticks: { color: MUTED_COLOR },
+				},
+				x: {
+					grid: { display: false },
+					ticks: { color: MUTED_COLOR },
+				},
+			},
 		},
 	});
 }
