@@ -33,18 +33,22 @@ world-wild-life/
 │   ├── wrangler.toml
 │   ├── .dev.vars             # secrets locaux (gitignoré) — IUCN_API_TOKEN
 │   ├── src/
-│   │   ├── index.js         # routeur principal
+│   │   ├── index.js         # routeur principal + handler cron
 │   │   └── routes/
 │   │       ├── species.js   # liste + détail + pagination/filtres
 │   │       ├── regions.js   # régions + espèces par région
 │   │       ├── search.js    # recherche full-text
 │   │       ├── filters.js   # valeurs distinctes (dropdowns)
 │   │       ├── stats.js     # statistiques globales
-│   │       └── iucn.js      # proxy live vers l'API IUCN Red List
+│   │       └── iucn.js      # proxy live + synchro batch IUCN Red List
 │   ├── middleware/cors.js
-│   └── db/
-│       ├── schema.sql
-│       └── seed.sql         # 250 espèces réelles
+│   ├── db/
+│   │   ├── schema.sql
+│   │   └── seed.sql         # 250 espèces réelles
+│   └── test/                # Vitest (vitest-pool-workers)
+│       ├── fixtures.sql
+│       ├── seed.js
+│       └── routes/*.test.js
 │
 └── README.md
 ```
@@ -100,6 +104,16 @@ npx wrangler secret put IUCN_API_TOKEN
 netlify deploy --prod --dir=frontend
 ```
 
+## Tests
+
+```bash
+cd backend
+npm install
+npm test
+```
+
+Tests unitaires et d'intégration (Vitest + [`@cloudflare/vitest-pool-workers`](https://developers.cloudflare.com/workers/testing/vitest-integration/)) : les routes s'exécutent dans le vrai runtime Workers avec un D1/KV simulés localement (aucun accès aux ressources de prod). Le schéma + un jeu de données de test sont rechargés avant chaque test via [`test/seed.js`](backend/test/seed.js). Exécutés automatiquement sur push/PR via [GitHub Actions](.github/workflows/backend-tests.yml).
+
 ## API
 
 | Endpoint | Description |
@@ -147,5 +161,4 @@ Voir [backend/db/seed.sql](backend/db/seed.sql) pour le détail.
 
 ## Roadmap restante
 
-- [ ] Tests unitaires et d'intégration
 - [ ] Intégration WikiData / NCBI Taxonomy pour enrichir la taxonomie
