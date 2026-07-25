@@ -128,7 +128,19 @@ class i18n {
 		document.documentElement.lang = this.currentLang;
 		document.querySelectorAll("[data-i18n]").forEach(el => {
 			const key = el.getAttribute("data-i18n");
-			el.textContent = this.t(key);
+			// Si l'élément a des enfants, mettre à jour seulement le nœud texte direct
+			const hasChildren = el.children.length > 0;
+			if (hasChildren) {
+				let textNode = Array.from(el.childNodes).find(node => node.nodeType === 3);
+				if (!textNode) {
+					textNode = document.createTextNode(this.t(key));
+					el.insertBefore(textNode, el.firstChild);
+				} else {
+					textNode.textContent = this.t(key);
+				}
+			} else {
+				el.textContent = this.t(key);
+			}
 		});
 		document.querySelectorAll("[data-i18n-placeholder]").forEach(el => {
 			const key = el.getAttribute("data-i18n-placeholder");

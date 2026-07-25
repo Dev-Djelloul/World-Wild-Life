@@ -16,7 +16,8 @@
 			<path d="M0,200 Q30,150 70,170 Q100,130 140,155 Q165,110 200,140 Q230,100 270,130 Q300,105 330,125 Q365,110 400,120 L400,200 Z" fill="rgba(255,255,255,0.10)"/>
 		</svg>
 		<div class="header-inner">
-			<div class="header-top">
+			<!-- Logo badge centré en haut -->
+			<div class="logo-badge-wrapper">
 				<div class="logo-badge">
 					<div class="badge-icon">
 						<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -37,23 +38,27 @@
 						<span class="badge-life">Life</span>
 					</div>
 				</div>
-				<div class="header-controls">
-					<div class="lang-selector">
-						<button id="lang-toggle" class="lang-toggle" aria-label="Changer la langue / Change language" aria-expanded="false" aria-controls="lang-menu">
-							<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
-								<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z" fill="currentColor"/>
-							</svg>
-							<span id="lang-display">FR</span>
-						</button>
-						<div id="lang-menu" class="lang-dropdown" role="menu" hidden>
-							<button class="lang-option active" data-lang="fr" role="menuitem">FR</button>
-							<button class="lang-option" data-lang="en" role="menuitem">EN</button>
-							<button class="lang-option" data-lang="es" role="menuitem">ES</button>
-						</div>
+			</div>
+
+			<!-- Tagline comme point focal -->
+			<p class="header-tagline" data-i18n="tagline">Découvrez la richesse du vivant. Explorez chaque espèce, son monde, sa survie.</p>
+
+			<!-- Sélecteur de langue en bas à droite -->
+			<div class="header-controls">
+				<div class="lang-selector">
+					<button id="lang-toggle" class="lang-toggle" aria-label="Changer la langue / Change language" aria-expanded="false" aria-controls="lang-menu">
+						<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+							<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z" fill="currentColor"/>
+						</svg>
+						<span id="lang-display">FR</span>
+					</button>
+					<div id="lang-menu" class="lang-dropdown" role="menu" hidden>
+						<button class="lang-option active" data-lang="fr" role="menuitem">Français</button>
+						<button class="lang-option" data-lang="en" role="menuitem">English</button>
+						<button class="lang-option" data-lang="es" role="menuitem">Español</button>
 					</div>
 				</div>
 			</div>
-			<p class="header-tagline" data-i18n="tagline">Découvrez la richesse du vivant. Explorez chaque espèce, son monde, sa survie.</p>
 		</div>
 	</header>
 
