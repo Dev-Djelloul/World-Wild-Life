@@ -42,7 +42,7 @@ const donutCenterPlugin = {
 		ctx.fillText(total, cx, cy - 10);
 		ctx.font = "11px 'DM Sans', system-ui, sans-serif";
 		ctx.fillStyle = "#b8d4e3";
-		ctx.fillText("espèces", cx, cy + 10);
+		ctx.fillText(i18nInstance.t("chart_species_center"), cx, cy + 10);
 		ctx.restore();
 	},
 };
@@ -107,8 +107,9 @@ export async function initDashboard() {
 		plugins: [donutCenterPlugin],
 	});
 
-	const habitatLabels = Object.keys(stats.by_habitat);
-	const habitatData = habitatLabels.map(h => stats.by_habitat[h]);
+	const habitatKeys = Object.keys(stats.by_habitat);
+	const habitatLabels = habitatKeys.map(h => i18nInstance.habitat(h));
+	const habitatData = habitatKeys.map(h => stats.by_habitat[h]);
 
 	const habitatCtx = document.getElementById("habitat-chart");
 	if (habitatChart) habitatChart.destroy();
@@ -117,7 +118,7 @@ export async function initDashboard() {
 		data: {
 			labels: habitatLabels,
 			datasets: [{
-				label: "Nombre d'espèces",
+				label: i18nInstance.t("chart_species_dataset_label"),
 				data: habitatData,
 				backgroundColor: habitatData.map(() => "rgba(95, 227, 192, 0.45)"),
 				hoverBackgroundColor: "rgba(95, 227, 192, 0.85)",
@@ -142,7 +143,7 @@ export async function initDashboard() {
 						afterBody: (items) => {
 							const total = habitatData.reduce((a, b) => a + b, 0);
 							const pct = Math.round((items[0].parsed.y / total) * 100);
-							return `${pct}% du total`;
+							return i18nInstance.t("chart_pct_of_total", { pct });
 						},
 					},
 				},

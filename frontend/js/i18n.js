@@ -15,6 +15,47 @@ const translations = {
 		all_diets: "Tous les régimes",
 		all_status: "Tous les statuts",
 		results_info: "Résultats",
+		footer: "Données de conservation à but éducatif.",
+		back_to_top: "Retour en haut de la page",
+
+		loading: "Chargement…",
+		no_species_match: "Aucune espèce ne correspond à ces critères.",
+		api_unreachable: "Impossible de charger les espèces. L'API backend est-elle accessible ?",
+		search_error: "Erreur lors de la recherche.",
+		species_found: "{n} espèce(s) trouvée(s)",
+		species_found_in_region: "{n} espèce(s) trouvée(s) en {region}",
+		remove_region_filter: "✕ retirer le filtre régional",
+		results_for: "{n} résultat(s) pour « {term} »",
+		prev: "← Précédent",
+		next: "Suivant →",
+		page_of: "Page {page} / {pages}",
+
+		iucn_status_label: "Statut UICN",
+		habitat_label: "Habitat :",
+		diet_label: "Régime :",
+		trend_label: "Tendance :",
+		regions_label: "Régions :",
+		not_specified: "Non renseigné",
+		detail_load_error: "Impossible de charger les détails de cette espèce.",
+
+		iucn_live_status: "Statut IUCN en direct",
+		assessed_in: "Évalué en {year}",
+		view_assessment: "voir l'évaluation",
+		taxonomy_title: "Taxonomie (NCBI)",
+		learn_more: "En savoir plus",
+		iucn_status_wikidata: "Statut IUCN (Wikidata)",
+		more_photos: "Plus de photos (Pexels)",
+		photo_by: "Photo par {name}",
+
+		species_in_region: "Espèces en {region} ({count})",
+		loading_species_in_region: "Chargement des espèces en {region}…",
+		view_species_in: "Voir les espèces en {region}",
+		globe_hint: "Faites glisser pour tourner le globe · cliquez sur un repère",
+
+		chart_species_center: "espèces",
+		chart_species_dataset_label: "Nombre d'espèces",
+		chart_pct_of_total: "{pct}% du total",
+
 		uicn_status: {
 			LC: "Préoccupation mineure",
 			NT: "Quasi menacée",
@@ -23,8 +64,40 @@ const translations = {
 			CR: "En danger critique",
 			DD: "Données insuffisantes",
 		},
-		footer: "Données de conservation à but éducatif.",
-		back_to_top: "Retour en haut de la page",
+		habitat_names: {
+			"Désert": "Désert",
+			"Forêt tempérée": "Forêt tempérée",
+			"Forêt tropicale": "Forêt tropicale",
+			"Montagne": "Montagne",
+			"Océan": "Océan",
+			"Savane": "Savane",
+			"Toundra": "Toundra",
+		},
+		diet_names: {
+			"Carnivore": "Carnivore",
+			"Herbivore": "Herbivore",
+			"Omnivore": "Omnivore",
+		},
+		trend_names: {
+			"Increasing": "En hausse",
+			"Decreasing": "En déclin",
+			"Stable": "Stable",
+			"Unknown": "Inconnue",
+		},
+		presence_names: {
+			"Resident": "Résidente",
+			"Migratory": "Migratrice",
+		},
+		region_names: {
+			"Afrique": "Afrique",
+			"Amérique du Sud": "Amérique du Sud",
+			"Amérique du Nord": "Amérique du Nord",
+			"Asie": "Asie",
+			"Europe": "Europe",
+			"Océanie": "Océanie",
+			"Antarctique": "Antarctique",
+			"Océans mondiaux": "Océans mondiaux",
+		},
 	},
 	en: {
 		tagline: "Discover life's diversity. Explore each species, its habitat, its survival.",
@@ -42,6 +115,47 @@ const translations = {
 		all_diets: "All Diets",
 		all_status: "All Status",
 		results_info: "Results",
+		footer: "Conservation data for educational purposes.",
+		back_to_top: "Back to top",
+
+		loading: "Loading…",
+		no_species_match: "No species match these criteria.",
+		api_unreachable: "Unable to load species. Is the backend API reachable?",
+		search_error: "Error during search.",
+		species_found: "{n} species found",
+		species_found_in_region: "{n} species found in {region}",
+		remove_region_filter: "✕ remove regional filter",
+		results_for: '{n} result(s) for "{term}"',
+		prev: "← Previous",
+		next: "Next →",
+		page_of: "Page {page} / {pages}",
+
+		iucn_status_label: "IUCN Status",
+		habitat_label: "Habitat:",
+		diet_label: "Diet:",
+		trend_label: "Trend:",
+		regions_label: "Regions:",
+		not_specified: "Not specified",
+		detail_load_error: "Unable to load details for this species.",
+
+		iucn_live_status: "Live IUCN Status",
+		assessed_in: "Assessed in {year}",
+		view_assessment: "view assessment",
+		taxonomy_title: "Taxonomy (NCBI)",
+		learn_more: "Learn More",
+		iucn_status_wikidata: "IUCN Status (Wikidata)",
+		more_photos: "More Photos (Pexels)",
+		photo_by: "Photo by {name}",
+
+		species_in_region: "Species in {region} ({count})",
+		loading_species_in_region: "Loading species in {region}…",
+		view_species_in: "View species in {region}",
+		globe_hint: "Drag to rotate the globe · click a marker",
+
+		chart_species_center: "species",
+		chart_species_dataset_label: "Number of species",
+		chart_pct_of_total: "{pct}% of total",
+
 		uicn_status: {
 			LC: "Least Concern",
 			NT: "Near Threatened",
@@ -50,8 +164,40 @@ const translations = {
 			CR: "Critically Endangered",
 			DD: "Data Deficient",
 		},
-		footer: "Conservation data for educational purposes.",
-		back_to_top: "Back to top",
+		habitat_names: {
+			"Désert": "Desert",
+			"Forêt tempérée": "Temperate Forest",
+			"Forêt tropicale": "Tropical Forest",
+			"Montagne": "Mountain",
+			"Océan": "Ocean",
+			"Savane": "Savanna",
+			"Toundra": "Tundra",
+		},
+		diet_names: {
+			"Carnivore": "Carnivore",
+			"Herbivore": "Herbivore",
+			"Omnivore": "Omnivore",
+		},
+		trend_names: {
+			"Increasing": "Increasing",
+			"Decreasing": "Decreasing",
+			"Stable": "Stable",
+			"Unknown": "Unknown",
+		},
+		presence_names: {
+			"Resident": "Resident",
+			"Migratory": "Migratory",
+		},
+		region_names: {
+			"Afrique": "Africa",
+			"Amérique du Sud": "South America",
+			"Amérique du Nord": "North America",
+			"Asie": "Asia",
+			"Europe": "Europe",
+			"Océanie": "Oceania",
+			"Antarctique": "Antarctica",
+			"Océans mondiaux": "World Oceans",
+		},
 	},
 	es: {
 		tagline: "Descubre la riqueza de la vida. Explora cada especie, su hábitat, su supervivencia.",
@@ -69,6 +215,47 @@ const translations = {
 		all_diets: "Todas las Dietas",
 		all_status: "Todos los Estados",
 		results_info: "Resultados",
+		footer: "Datos de conservación con fines educativos.",
+		back_to_top: "Volver al inicio",
+
+		loading: "Cargando…",
+		no_species_match: "Ninguna especie coincide con estos criterios.",
+		api_unreachable: "No se pudieron cargar las especies. ¿Está disponible la API del backend?",
+		search_error: "Error durante la búsqueda.",
+		species_found: "{n} especie(s) encontrada(s)",
+		species_found_in_region: "{n} especie(s) encontrada(s) en {region}",
+		remove_region_filter: "✕ quitar el filtro regional",
+		results_for: '{n} resultado(s) para "{term}"',
+		prev: "← Anterior",
+		next: "Siguiente →",
+		page_of: "Página {page} / {pages}",
+
+		iucn_status_label: "Estado UICN",
+		habitat_label: "Hábitat:",
+		diet_label: "Dieta:",
+		trend_label: "Tendencia:",
+		regions_label: "Regiones:",
+		not_specified: "No especificado",
+		detail_load_error: "No se pudieron cargar los detalles de esta especie.",
+
+		iucn_live_status: "Estado UICN en Vivo",
+		assessed_in: "Evaluado en {year}",
+		view_assessment: "ver la evaluación",
+		taxonomy_title: "Taxonomía (NCBI)",
+		learn_more: "Saber Más",
+		iucn_status_wikidata: "Estado UICN (Wikidata)",
+		more_photos: "Más Fotos (Pexels)",
+		photo_by: "Foto por {name}",
+
+		species_in_region: "Especies en {region} ({count})",
+		loading_species_in_region: "Cargando especies en {region}…",
+		view_species_in: "Ver especies en {region}",
+		globe_hint: "Arrastra para girar el globo · haz clic en un marcador",
+
+		chart_species_center: "especies",
+		chart_species_dataset_label: "Número de especies",
+		chart_pct_of_total: "{pct}% del total",
+
 		uicn_status: {
 			LC: "Preocupación Menor",
 			NT: "Casi Amenazada",
@@ -77,8 +264,40 @@ const translations = {
 			CR: "Peligro Crítico",
 			DD: "Datos Insuficientes",
 		},
-		footer: "Datos de conservación con fines educativos.",
-		back_to_top: "Volver al inicio",
+		habitat_names: {
+			"Désert": "Desierto",
+			"Forêt tempérée": "Bosque Templado",
+			"Forêt tropicale": "Bosque Tropical",
+			"Montagne": "Montaña",
+			"Océan": "Océano",
+			"Savane": "Sabana",
+			"Toundra": "Tundra",
+		},
+		diet_names: {
+			"Carnivore": "Carnívoro",
+			"Herbivore": "Herbívoro",
+			"Omnivore": "Omnívoro",
+		},
+		trend_names: {
+			"Increasing": "En Aumento",
+			"Decreasing": "En Declive",
+			"Stable": "Estable",
+			"Unknown": "Desconocida",
+		},
+		presence_names: {
+			"Resident": "Residente",
+			"Migratory": "Migratoria",
+		},
+		region_names: {
+			"Afrique": "África",
+			"Amérique du Sud": "América del Sur",
+			"Amérique du Nord": "América del Norte",
+			"Asie": "Asia",
+			"Europe": "Europa",
+			"Océanie": "Oceanía",
+			"Antarctique": "Antártida",
+			"Océans mondiaux": "Océanos del Mundo",
+		},
 	},
 };
 
@@ -106,15 +325,34 @@ class i18n {
 		this.notifyListeners();
 	}
 
-	t(key) {
+	t(key, vars) {
 		const keys = key.split(".");
 		let value = translations[this.currentLang];
 		for (const k of keys) {
-			value = value[k];
-			if (!value) return key;
+			value = value?.[k];
+			if (value === undefined) return key;
+		}
+		if (vars) {
+			return Object.entries(vars).reduce(
+				(str, [k, v]) => str.replace(new RegExp(`\\{${k}\\}`, "g"), v),
+				value
+			);
 		}
 		return value;
 	}
+
+	/** Traduit une valeur d'énumération venant du backend (habitat, régime, tendance, présence, région). */
+	translateEnum(dictName, value) {
+		if (!value) return value;
+		const dict = translations[this.currentLang]?.[dictName];
+		return dict?.[value] ?? value;
+	}
+
+	habitat(value) { return this.translateEnum("habitat_names", value); }
+	diet(value) { return this.translateEnum("diet_names", value); }
+	trend(value) { return this.translateEnum("trend_names", value); }
+	presence(value) { return this.translateEnum("presence_names", value); }
+	region(value) { return this.translateEnum("region_names", value); }
 
 	subscribe(callback) {
 		this.listeners.push(callback);

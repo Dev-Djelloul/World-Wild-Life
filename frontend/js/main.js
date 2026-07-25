@@ -36,7 +36,7 @@ const state = {
 
 function renderList(species) {
 	if (!species.length) {
-		listEl.innerHTML = `<li class="empty-state">Aucune espèce ne correspond à ces critères.</li>`;
+		listEl.innerHTML = `<li class="empty-state">${i18nInstance.t("no_species_match")}</li>`;
 		return;
 	}
 
@@ -47,7 +47,7 @@ function renderList(species) {
 			<em>${s.name_scientific}</em>
 			<div class="status">
 				<span class="status-badge status-${s.conservation_status}">${s.conservation_status}</span>
-				${s.habitat} — ${s.diet}
+				${i18nInstance.habitat(s.habitat)} — ${i18nInstance.diet(s.diet)}
 			</div>
 		</li>
 	`).join("");
@@ -71,9 +71,9 @@ function renderPagination(page, pages) {
 	const prevDisabled = page <= 1 ? "disabled" : "";
 	const nextDisabled = page >= pages ? "disabled" : "";
 	paginationEl.innerHTML = `
-		<button id="prev-page" ${prevDisabled}>&larr; Précédent</button>
-		<span>Page ${page} / ${pages}</span>
-		<button id="next-page" ${nextDisabled}>Suivant &rarr;</button>
+		<button id="prev-page" ${prevDisabled}>${i18nInstance.t("prev")}</button>
+		<span>${i18nInstance.t("page_of", { page, pages })}</span>
+		<button id="next-page" ${nextDisabled}>${i18nInstance.t("next")}</button>
 	`;
 	document.getElementById("prev-page")?.addEventListener("click", () => {
 		if (state.page > 1) { state.page -= 1; loadList(); }
@@ -94,11 +94,11 @@ function renderIucnEnrichment(id, data) {
 		return;
 	}
 	el.innerHTML = `
-		<h4>Statut IUCN en direct</h4>
+		<h4>${i18nInstance.t("iucn_live_status")}</h4>
 		<p>
 			<span class="status-badge status-${data.iucn_status}">${data.iucn_status}</span>
-			${data.assessment_year ? `Évalué en ${data.assessment_year}` : ""}
-			${data.assessment_url ? `— <a href="${data.assessment_url}" target="_blank" rel="noopener">voir l'évaluation</a>` : ""}
+			${data.assessment_year ? i18nInstance.t("assessed_in", { year: data.assessment_year }) : ""}
+			${data.assessment_url ? `— <a href="${data.assessment_url}" target="_blank" rel="noopener">${i18nInstance.t("view_assessment")}</a>` : ""}
 		</p>
 	`;
 }
@@ -112,7 +112,7 @@ function renderTaxonomyEnrichment(id, data) {
 		return;
 	}
 	el.innerHTML = `
-		<h4>Taxonomie (NCBI)</h4>
+		<h4>${i18nInstance.t("taxonomy_title")}</h4>
 		<p>${data.kingdom || "?"} &rsaquo; ${data.phylum || "?"} &rsaquo; ${data.class || "?"}</p>
 	`;
 }
@@ -124,10 +124,10 @@ function renderLinksEnrichment(id, wikidata, eol) {
 
 	const links = [];
 	if (wikidata?.wikidata_url) links.push(`<a href="${wikidata.wikidata_url}" target="_blank" rel="noopener">Wikidata</a>`);
-	if (wikidata?.iucn_status_wikidata) links.push(`Statut IUCN (Wikidata) : ${wikidata.iucn_status_wikidata}`);
+	if (wikidata?.iucn_status_wikidata) links.push(`${i18nInstance.t("iucn_status_wikidata")} : ${wikidata.iucn_status_wikidata}`);
 	if (eol?.eol_page_url) links.push(`<a href="${eol.eol_page_url}" target="_blank" rel="noopener">Encyclopedia of Life</a>`);
 
-	el.innerHTML = links.length ? `<h4>En savoir plus</h4><p>${links.join(" · ")}</p>` : "";
+	el.innerHTML = links.length ? `<h4>${i18nInstance.t("learn_more")}</h4><p>${links.join(" · ")}</p>` : "";
 }
 
 function renderPhotosEnrichment(id, data) {
@@ -139,11 +139,11 @@ function renderPhotosEnrichment(id, data) {
 		return;
 	}
 	el.innerHTML = `
-		<h4>Plus de photos (Pexels)</h4>
+		<h4>${i18nInstance.t("more_photos")}</h4>
 		<div class="photo-gallery">
 			${data.photos.map(p => `
-				<a href="${p.pexels_url}" target="_blank" rel="noopener" title="Photo par ${p.photographer}">
-					<img src="${p.url}" alt="${data.name_common} — photo par ${p.photographer}" loading="lazy">
+				<a href="${p.pexels_url}" target="_blank" rel="noopener" title="${i18nInstance.t("photo_by", { name: p.photographer })}">
+					<img src="${p.url}" alt="${data.name_common} — ${i18nInstance.t("photo_by", { name: p.photographer })}" loading="lazy">
 				</a>
 			`).join("")}
 		</div>
@@ -159,24 +159,24 @@ function loadEnrichments(id) {
 
 async function showDetail(id) {
 	currentDetailId = id;
-	detailEl.innerHTML = `<div class="detail-card">Chargement…</div>`;
+	detailEl.innerHTML = `<div class="detail-card">${i18nInstance.t("loading")}</div>`;
 	detailEl.scrollIntoView({ behavior: "smooth" });
 	try {
 		const s = await fetchSpeciesById(id);
 		if (currentDetailId !== id) return;
-		const regions = s.regions.map(r => `${r.name} (${r.presence})`).join(", ");
+		const regions = s.regions.map(r => `${i18nInstance.region(r.name)} (${i18nInstance.presence(r.presence)})`).join(", ");
 		detailEl.innerHTML = `
 			<div class="detail-card">
 				${s.image_url ? `<img class="detail-thumb" src="${s.image_url}" alt="${s.name_common}">` : ""}
 				<h2>${s.name_common} <em>(${s.name_scientific})</em></h2>
 				<div class="detail-meta">
-					<span><span class="status-badge status-${s.conservation_status}">${s.conservation_status}</span> Statut UICN</span>
-					<span><strong>Habitat :</strong> ${s.habitat}</span>
-					<span><strong>Régime :</strong> ${s.diet}</span>
-					<span><strong>Tendance :</strong> ${s.population_trend}</span>
+					<span><span class="status-badge status-${s.conservation_status}">${s.conservation_status}</span> ${i18nInstance.t("iucn_status_label")}</span>
+					<span><strong>${i18nInstance.t("habitat_label")}</strong> ${i18nInstance.habitat(s.habitat)}</span>
+					<span><strong>${i18nInstance.t("diet_label")}</strong> ${i18nInstance.diet(s.diet)}</span>
+					<span><strong>${i18nInstance.t("trend_label")}</strong> ${i18nInstance.trend(s.population_trend)}</span>
 				</div>
 				<p>${s.description}</p>
-				<p><strong>Régions :</strong> ${regions || "Non renseigné"}</p>
+				<p><strong>${i18nInstance.t("regions_label")}</strong> ${regions || i18nInstance.t("not_specified")}</p>
 				<div class="detail-enrichments">
 					<div id="enrichment-iucn" class="enrichment-block"></div>
 					<div id="enrichment-taxonomy" class="enrichment-block"></div>
@@ -187,21 +187,21 @@ async function showDetail(id) {
 		`;
 		loadEnrichments(id);
 	} catch (err) {
-		detailEl.innerHTML = `<div class="detail-card">Impossible de charger les détails de cette espèce.</div>`;
+		detailEl.innerHTML = `<div class="detail-card">${i18nInstance.t("detail_load_error")}</div>`;
 	}
 }
 
 function renderResultInfo(total) {
 	if (!state.regionId) {
-		resultInfoEl.textContent = `${total} espèce(s) trouvée(s)`;
+		resultInfoEl.textContent = i18nInstance.t("species_found", { n: total });
 		return;
 	}
 	resultInfoEl.innerHTML = "";
-	resultInfoEl.append(`${total} espèce(s) trouvée(s) en ${state.regionName} `);
+	resultInfoEl.append(i18nInstance.t("species_found_in_region", { n: total, region: i18nInstance.region(state.regionName) }) + " ");
 	const clearBtn = document.createElement("button");
 	clearBtn.type = "button";
 	clearBtn.className = "clear-region-filter";
-	clearBtn.textContent = "✕ retirer le filtre régional";
+	clearBtn.textContent = i18nInstance.t("remove_region_filter");
 	clearBtn.addEventListener("click", () => {
 		state.regionId = "";
 		state.regionName = "";
@@ -227,7 +227,7 @@ async function loadList() {
 		renderResultInfo(data.total);
 		return data;
 	} catch (err) {
-		listEl.innerHTML = `<li class="empty-state">Impossible de charger les espèces. L'API backend est-elle accessible ?</li>`;
+		listEl.innerHTML = `<li class="empty-state">${i18nInstance.t("api_unreachable")}</li>`;
 	}
 }
 
@@ -236,9 +236,9 @@ async function runSearch(term) {
 		const data = await searchSpecies(term, 30);
 		renderList(data.results.map(r => ({ ...r })));
 		renderPagination(1, 1);
-		resultInfoEl.textContent = `${data.count} résultat(s) pour "${term}"`;
+		resultInfoEl.textContent = i18nInstance.t("results_for", { n: data.count, term });
 	} catch (err) {
-		listEl.innerHTML = `<li class="empty-state">Erreur lors de la recherche.</li>`;
+		listEl.innerHTML = `<li class="empty-state">${i18nInstance.t("search_error")}</li>`;
 	}
 }
 
@@ -275,15 +275,29 @@ function bindFilterEvents() {
 	});
 }
 
+let cachedFilters = null;
+
+function renderFilterOptions() {
+	if (!cachedFilters) return;
+	const { habitats, diets, statuses } = cachedFilters;
+	const prevValues = { habitat: habitatSelect.value, diet: dietSelect.value, status: statusSelect.value };
+
+	habitatSelect.innerHTML = `<option value="">${i18nInstance.t("all_habitats")}</option>` +
+		habitats.map(h => `<option value="${h}">${i18nInstance.habitat(h)}</option>`).join("");
+	dietSelect.innerHTML = `<option value="">${i18nInstance.t("all_diets")}</option>` +
+		diets.map(d => `<option value="${d}">${i18nInstance.diet(d)}</option>`).join("");
+	statusSelect.innerHTML = `<option value="">${i18nInstance.t("all_status")}</option>` +
+		statuses.map(s => `<option value="${s}">${i18nInstance.t(`uicn_status.${s}`)}</option>`).join("");
+
+	habitatSelect.value = prevValues.habitat;
+	dietSelect.value = prevValues.diet;
+	statusSelect.value = prevValues.status;
+}
+
 async function populateFilters() {
 	try {
-		const { habitats, diets, statuses } = await fetchFilters();
-		habitatSelect.innerHTML = `<option value="">Tous les habitats</option>` +
-			habitats.map(h => `<option value="${h}">${h}</option>`).join("");
-		dietSelect.innerHTML = `<option value="">Tous les régimes</option>` +
-			diets.map(d => `<option value="${d}">${d}</option>`).join("");
-		statusSelect.innerHTML = `<option value="">Tous les statuts</option>` +
-			statuses.map(s => `<option value="${s}">${s}</option>`).join("");
+		cachedFilters = await fetchFilters();
+		renderFilterOptions();
 	} catch (err) {
 		// filtres non bloquants si l'API est indisponible
 	}
@@ -307,7 +321,7 @@ async function fetchAllRegionSpecies(regionId) {
 function renderRegionQuickList(region, data) {
 	const container = document.getElementById("region-species");
 	container.innerHTML = `
-		<h3>Espèces en ${region.name} (${data.total})</h3>
+		<h3>${i18nInstance.t("species_in_region", { region: i18nInstance.region(region.name), count: data.total })}</h3>
 		<ul class="region-species-list">
 			${data.species.map(s => `
 				<li class="region-species-item" data-id="${s.id}" tabindex="0">
@@ -329,6 +343,9 @@ function renderRegionQuickList(region, data) {
 	});
 }
 
+let lastQuickListRegion = null;
+let lastQuickListData = null;
+
 async function selectRegion(region) {
 	state.regionId = region.id;
 	state.regionName = region.name;
@@ -337,9 +354,12 @@ async function selectRegion(region) {
 	searchInput.value = "";
 
 	const container = document.getElementById("region-species");
-	container.innerHTML = `<p>Chargement des espèces en ${region.name}…</p>`;
+	container.innerHTML = `<p>${i18nInstance.t("loading_species_in_region", { region: i18nInstance.region(region.name) })}</p>`;
 
 	const [, quickListData] = await Promise.all([loadList(), fetchAllRegionSpecies(region.id)]);
+
+	lastQuickListRegion = region;
+	lastQuickListData = quickListData;
 
 	if (quickListData) {
 		renderRegionQuickList(region, quickListData);
@@ -364,7 +384,12 @@ function bindBackToTop() {
 function initLanguageToggle() {
 	const langToggle = document.getElementById("lang-toggle");
 	const langMenu = document.getElementById("lang-menu");
+	const langDisplay = document.getElementById("lang-display");
 	const langOptions = document.querySelectorAll(".lang-option");
+
+	// Synchronise le bouton et le menu avec la langue déjà active (ex. restaurée du localStorage).
+	langDisplay.textContent = i18nInstance.currentLang.toUpperCase();
+	langOptions.forEach(o => o.classList.toggle("active", o.getAttribute("data-lang") === i18nInstance.currentLang));
 
 	langToggle.addEventListener("click", () => {
 		const isOpen = langMenu.hidden === false;
@@ -377,6 +402,7 @@ function initLanguageToggle() {
 			const lang = option.getAttribute("data-lang");
 			i18nInstance.setLanguage(lang);
 
+			langDisplay.textContent = lang.toUpperCase();
 			langOptions.forEach(o => o.classList.remove("active"));
 			option.classList.add("active");
 
@@ -393,10 +419,44 @@ function initLanguageToggle() {
 	});
 }
 
+function reRenderOnLanguageChange() {
+	renderFilterOptions();
+
+	// Recharge la liste courante (recherche ou filtres) pour retraduire habitat/régime.
+	if (state.searchTerm.length >= 2) {
+		runSearch(state.searchTerm);
+	} else {
+		loadList();
+	}
+
+	// Rejoue le détail affiché, s'il y en a un, pour retraduire ses champs.
+	if (currentDetailId) {
+		showDetail(currentDetailId);
+	}
+
+	// Retraduit le bandeau d'aide et le libellé des repères du globe.
+	document.querySelectorAll(".globe-hint").forEach(hint => {
+		hint.textContent = i18nInstance.t("globe_hint");
+	});
+	document.querySelectorAll(".globe-marker").forEach(marker => {
+		const name = marker.getAttribute("data-region-name");
+		if (name) marker.setAttribute("aria-label", i18nInstance.t("view_species_in", { region: i18nInstance.region(name) }));
+	});
+
+	// Rejoue la mini-liste régionale affichée sous le globe, s'il y en a une.
+	if (lastQuickListData) {
+		renderRegionQuickList(lastQuickListRegion, lastQuickListData);
+	}
+
+	// Recrée les graphiques avec les libellés traduits.
+	initDashboard();
+}
+
 async function init() {
 	initLanguageToggle();
 	bindFilterEvents();
 	bindBackToTop();
+	i18nInstance.subscribe(reRenderOnLanguageChange);
 	await populateFilters();
 	await loadList();
 	await initMap(selectRegion);

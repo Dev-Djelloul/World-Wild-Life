@@ -1,4 +1,5 @@
 import { fetchRegions } from "./api-client.js";
+import { i18nInstance } from "./i18n.js";
 
 // GeoJSON des frontières de pays par continent (Natural Earth, domaine public,
 // via click_that_hood). Chargé à la demande pour surligner la région sélectionnée.
@@ -61,7 +62,7 @@ export async function initMap(onRegionSelect) {
 
 	const hint = document.createElement("p");
 	hint.className = "globe-hint";
-	hint.textContent = "Faites glisser pour tourner le globe · cliquez sur un repère";
+	hint.textContent = i18nInstance.t("globe_hint");
 	mapEl.appendChild(hint);
 
 	const svg = d3.select(mapEl).append("svg").attr("class", "globe-svg");
@@ -157,7 +158,7 @@ export async function initMap(onRegionSelect) {
 	function showTooltip(region) {
 		const p = projection([region.longitude, region.latitude]);
 		if (!p) return;
-		tooltip.innerHTML = `<strong>${region.name}</strong>${region.description ? `<span>${region.description}</span>` : ""}`;
+		tooltip.innerHTML = `<strong>${i18nInstance.region(region.name)}</strong>${region.description ? `<span>${region.description}</span>` : ""}`;
 		tooltip.classList.add("is-visible");
 
 		// Positionne l'infobulle en la contraignant dans le cadre : c'est ce qui
@@ -218,7 +219,8 @@ export async function initMap(onRegionSelect) {
 		.attr("class", "globe-marker")
 		.attr("tabindex", 0)
 		.attr("role", "button")
-		.attr("aria-label", d => `Voir les espèces en ${d.name}`);
+		.attr("data-region-name", d => d.name)
+		.attr("aria-label", d => i18nInstance.t("view_species_in", { region: i18nInstance.region(d.name) }));
 
 	markers.append("circle").attr("class", "globe-marker-pulse").attr("r", 13);
 	markers.append("circle").attr("class", "globe-marker-dot").attr("r", 6);
