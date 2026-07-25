@@ -18,9 +18,18 @@
 	--accent-soft: #f7c79b;
 	--biolum: #5fe3c0;        /* bioluminescence, pour les focus */
 
-	/* Texte */
+	/* Palette UICN océanique */
+	--status-LC-color: #26d3aa;
+	--status-NT-color: #4dd0e1;
+	--status-VU-color: #ffa726;
+	--status-EN-color: #ff7043;
+	--status-CR-color: #d63330;
+	--status-DD-color: #80deea;
+
+	/* Texte — couleurs augmentées pour WCAG AA */
 	--color-text: #e8f4fa;
-	--color-text-muted: #9fc2d4;
+	--color-text-muted: #b8d4e3;   /* était #9fc2d4 — amélioré pour AA */
+	--color-text-muted-sm: #c5dce8; /* pour texte <0.85rem */
 	--color-heading: #ffffff;
 
 	/* Surfaces en verre */
@@ -42,6 +51,11 @@
 	--shadow-sm: 0 4px 16px rgba(2, 14, 24, 0.28);
 	--shadow-md: 0 22px 55px -18px rgba(2, 12, 22, 0.75);
 	--shadow-glow: 0 0 60px -10px rgba(95, 227, 192, 0.25);
+
+	/* Niveaux de glow pour la hiérarchie visuelle */
+	--glow-hero: 0 0 80px -15px rgba(95, 227, 192, 0.40);
+	--glow-secondary: 0 0 40px -12px rgba(95, 227, 192, 0.22);
+	--glow-subtle: 0 0 20px -10px rgba(95, 227, 192, 0.12);
 
 	--font-display: "Fraunces", Georgia, serif;
 	--font-body: "Work Sans", system-ui, sans-serif;
@@ -194,8 +208,44 @@ a:hover {
 
 /* ---------- Panels (verre dépoli) ---------- */
 
+@keyframes water-shimmer {
+	0%, 100% { background-position: 0% 50%; }
+	50% { background-position: 100% 50%; }
+}
+
+@keyframes pulse-glow-kpi {
+	0%, 100% { box-shadow: var(--shadow-sm), 0 0 16px rgba(95, 227, 192, 0.08); }
+	50% { box-shadow: var(--shadow-sm), 0 0 32px rgba(95, 227, 192, 0.18); }
+}
+
+@keyframes biolum-pulse {
+	0%, 100% {
+		box-shadow:
+			var(--shadow-md),
+			var(--glow-hero),
+			inset 0 1px 0 rgba(255, 255, 255, 0.18);
+	}
+	50% {
+		box-shadow:
+			var(--shadow-md),
+			0 0 100px -15px rgba(95, 227, 192, 0.50),
+			inset 0 1px 0 rgba(255, 255, 255, 0.22);
+	}
+}
+
+@keyframes float-gentle {
+	0%, 100% { transform: translateY(0px); }
+	50% { transform: translateY(-4px); }
+}
+
+@keyframes card-shimmer {
+	0% { transform: translateX(-100%); }
+	100% { transform: translateX(100%); }
+}
+
 .panel {
 	background: var(--glass-bg);
+	background-size: 200% 200%;
 	border: 1px solid var(--glass-border);
 	border-radius: var(--radius);
 	box-shadow:
@@ -204,6 +254,18 @@ a:hover {
 	padding: 2rem;
 	-webkit-backdrop-filter: var(--glass-blur);
 	backdrop-filter: var(--glass-blur);
+}
+
+/* Dashboard : discret, fond légèrement plus opaque */
+#dashboard {
+	background: rgba(255, 255, 255, 0.05);
+	border-color: rgba(255, 255, 255, 0.09);
+}
+
+/* Explorateur : fond standard */
+#explorer {
+	background: rgba(255, 255, 255, 0.06);
+	border-color: rgba(255, 255, 255, 0.11);
 }
 
 .panel h2 {
@@ -216,14 +278,24 @@ a:hover {
 	letter-spacing: -0.01em;
 }
 
-/* La carte des régions n'a pas de cadre : le globe flotte dans l'océan. */
+/* Globe : pièce maîtresse avec glow bioluminescent pulsé */
 #map-section {
-	background: none;
-	border: none;
-	box-shadow: none;
-	backdrop-filter: none;
-	-webkit-backdrop-filter: none;
-	padding: 1rem 0;
+	background: linear-gradient(135deg,
+		rgba(95, 227, 192, 0.05) 0%,
+		rgba(255, 255, 255, 0.02) 100%);
+	border: 1px solid rgba(95, 227, 192, 0.18);
+	box-shadow:
+		var(--shadow-md),
+		var(--glow-hero),
+		inset 0 1px 0 rgba(95, 227, 192, 0.1);
+	backdrop-filter: var(--glass-blur);
+	-webkit-backdrop-filter: var(--glass-blur);
+	padding: 2rem 1.5rem;
+	animation: biolum-pulse 7s ease-in-out infinite;
+}
+
+#map-section h2 {
+	text-shadow: 0 0 20px rgba(95, 227, 192, 0.35);
 }
 
 /* ---------- KPIs ---------- */
@@ -242,12 +314,14 @@ a:hover {
 	border-radius: var(--radius-sm);
 	padding: 1.35rem 1rem;
 	text-align: center;
-	transition: transform 0.25s ease, background 0.25s ease;
+	animation: pulse-glow-kpi 5s ease-in-out infinite;
+	transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.25s ease;
 }
 
 .kpi-card:hover {
-	transform: translateY(-2px);
-	background: rgba(255, 255, 255, 0.09);
+	transform: translateY(-5px);
+	background: rgba(255, 255, 255, 0.11);
+	animation-play-state: paused;
 }
 
 .kpi-card--warning {
@@ -275,7 +349,9 @@ a:hover {
 
 .kpi-label {
 	font-size: 0.8rem;
+	font-weight: 500;
 	color: var(--color-text-muted);
+	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
 }
 
 /* ---------- Charts ---------- */
@@ -296,15 +372,15 @@ a:hover {
 .chart-container h3 {
 	font-size: 0.78rem;
 	font-weight: 600;
-	color: var(--color-text-muted);
+	color: var(--color-text-muted-sm);
 	margin: 0 0 0.9rem;
 	text-transform: uppercase;
 	letter-spacing: 0.08em;
+	text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
 }
 
 /* ---------- Globe ---------- */
 
-/* Aucun cadre ni fond : le globe est posé directement sur l'océan. */
 #map {
 	position: relative;
 	height: 520px;
@@ -317,10 +393,12 @@ a:hover {
 	display: block;
 	cursor: grab;
 	filter: drop-shadow(0 30px 60px rgba(0, 0, 0, 0.55));
+	animation: float-gentle 6s ease-in-out infinite;
 }
 
 #map.is-dragging .globe-svg {
 	cursor: grabbing;
+	animation-play-state: paused;
 }
 
 .globe-halo {
@@ -632,15 +710,44 @@ a:hover {
 	cursor: pointer;
 	background: rgba(255, 255, 255, 0.06);
 	overflow: hidden;
-	transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease, background 0.22s ease;
+	position: relative;
+	transition:
+		transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+		box-shadow 0.3s ease,
+		border-color 0.25s ease,
+		background 0.25s ease;
+}
+
+/* Effet shimmer au hover */
+.species-card::after {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: -100%;
+	width: 60%;
+	height: 100%;
+	background: linear-gradient(90deg,
+		transparent,
+		rgba(255, 255, 255, 0.12),
+		transparent);
+	pointer-events: none;
+	transition: none;
+}
+
+.species-card:hover::after,
+.species-card:focus-visible::after {
+	animation: card-shimmer 0.55s ease forwards;
 }
 
 .species-card:hover,
 .species-card:focus-visible {
-	transform: translateY(-5px);
-	box-shadow: var(--shadow-md), var(--shadow-glow);
-	border-color: var(--glass-border-strong);
-	background: rgba(255, 255, 255, 0.1);
+	transform: translateY(-8px) scale(1.02);
+	box-shadow:
+		var(--shadow-md),
+		0 0 45px rgba(95, 227, 192, 0.22),
+		inset 0 1px 0 rgba(255, 255, 255, 0.2);
+	border-color: rgba(95, 227, 192, 0.35);
+	background: rgba(255, 255, 255, 0.11);
 	outline: none;
 }
 
@@ -681,26 +788,60 @@ a:hover {
 	margin-top: 0.7rem;
 	font-size: 0.78rem;
 	font-weight: 500;
-	color: var(--color-text-muted);
+	color: var(--color-text-muted-sm);
+	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .status-badge {
 	display: inline-block;
-	padding: 0.12rem 0.55rem;
+	padding: 0.15rem 0.65rem;
 	border-radius: 999px;
 	font-size: 0.72rem;
 	font-weight: 600;
-	color: #06222f;
+	color: #fff;
 	margin-right: 0.45rem;
+	transition: box-shadow 0.2s ease;
 }
 
-/* Palette UICN conservée mais éclaircie pour tenir sur fond sombre. */
-.status-LC { background: #6ede8a; }
-.status-NT { background: #b5e26a; }
-.status-VU { background: #f5c85c; }
-.status-EN { background: #f79b5c; }
-.status-CR { background: #f5705f; color: #2b0b06; }
-.status-DD { background: #b8c4c9; }
+/* Palette UICN océanique : teintes refroidies + bioluminescence */
+.status-LC {
+	background: var(--status-LC-color);
+	box-shadow: 0 0 10px rgba(38, 211, 170, 0.35);
+}
+.status-LC:hover { box-shadow: 0 0 18px rgba(38, 211, 170, 0.55); }
+
+.status-NT {
+	background: var(--status-NT-color);
+	color: #062f47;
+	box-shadow: 0 0 10px rgba(77, 208, 225, 0.3);
+}
+.status-NT:hover { box-shadow: 0 0 18px rgba(77, 208, 225, 0.5); }
+
+.status-VU {
+	background: var(--status-VU-color);
+	color: #2b1400;
+	box-shadow: 0 0 10px rgba(255, 167, 38, 0.3);
+}
+.status-VU:hover { box-shadow: 0 0 18px rgba(255, 167, 38, 0.5); }
+
+.status-EN {
+	background: var(--status-EN-color);
+	box-shadow: 0 0 10px rgba(255, 112, 67, 0.3);
+}
+.status-EN:hover { box-shadow: 0 0 18px rgba(255, 112, 67, 0.5); }
+
+.status-CR {
+	background: var(--status-CR-color);
+	box-shadow: 0 0 10px rgba(214, 51, 48, 0.4);
+}
+.status-CR:hover { box-shadow: 0 0 18px rgba(214, 51, 48, 0.6); }
+
+.status-DD {
+	background: var(--status-DD-color);
+	color: #062f47;
+	box-shadow: 0 0 10px rgba(128, 222, 234, 0.25);
+}
+.status-DD:hover { box-shadow: 0 0 18px rgba(128, 222, 234, 0.4); }
 
 .empty-state {
 	grid-column: 1 / -1;
@@ -947,6 +1088,40 @@ a:hover {
 		bottom: 1rem;
 		width: 44px;
 		height: 44px;
+	}
+
+	/* Zones tactiles min. 44×44px */
+	.region-species-item {
+		padding: 0.8rem 1rem;
+		min-height: 44px;
+		display: flex;
+		align-items: center;
+		flex-wrap: wrap;
+		gap: 0.3rem;
+	}
+
+	#filters input,
+	#filters select {
+		min-height: 44px;
+		padding: 0.75rem 1rem;
+	}
+
+	/* Réduire animations coûteuses sur mobile */
+	.panel,
+	#map-section {
+		animation: none;
+	}
+
+	.globe-svg {
+		animation: none;
+	}
+
+	.species-card:hover,
+	.species-card:focus-visible {
+		transform: translateY(-4px) scale(1.01);
+		box-shadow:
+			var(--shadow-md),
+			0 0 20px rgba(95, 227, 192, 0.15);
 	}
 }
 
