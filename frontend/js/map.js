@@ -1,4 +1,4 @@
-import { fetchRegions, fetchRegionSpecies } from "./api-client.js";
+import { fetchRegions } from "./api-client.js";
 
 // GeoJSON des frontières de pays par continent (Natural Earth, domaine public,
 // via click_that_hood). Chargé à la demande au clic sur une région.
@@ -86,8 +86,7 @@ export async function initMap(onRegionSelect) {
 				boundaryLayer.bringToBack();
 			}
 
-			const data = await fetchRegionSpecies(region.id, 20);
-			onRegionSelect(data);
+			onRegionSelect({ id: region.id, name: region.name });
 		});
 	});
 }

@@ -1,10 +1,11 @@
 const API_BASE_URL = "https://world-wild-life-api.djelloulabid75.workers.dev";
 
-export async function fetchSpecies({ page = 1, limit = 20, habitat = "", diet = "", status = "" } = {}) {
+export async function fetchSpecies({ page = 1, limit = 20, habitat = "", diet = "", status = "", regionId = "" } = {}) {
 	const params = new URLSearchParams({ page, limit });
 	if (habitat) params.set("habitat", habitat);
 	if (diet) params.set("diet", diet);
 	if (status) params.set("status", status);
+	if (regionId) params.set("region_id", regionId);
 
 	const response = await fetch(`${API_BASE_URL}/species?${params}`);
 	if (!response.ok) throw new Error("Erreur lors du chargement des espèces");
@@ -35,12 +36,6 @@ export async function fetchRegions() {
 	if (!response.ok) throw new Error("Erreur lors du chargement des régions");
 	const data = await response.json();
 	return data.regions;
-}
-
-export async function fetchRegionSpecies(regionId, limit = 20) {
-	const response = await fetch(`${API_BASE_URL}/regions/${regionId}/species?limit=${limit}`);
-	if (!response.ok) throw new Error("Erreur lors du chargement des espèces de la région");
-	return response.json();
 }
 
 export async function fetchStats() {

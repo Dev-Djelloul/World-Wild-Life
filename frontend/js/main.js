@@ -29,6 +29,8 @@ const state = {
 	diet: "",
 	status: "",
 	searchTerm: "",
+	regionId: "",
+	regionName: "",
 };
 
 function renderList(species) {
@@ -188,6 +190,27 @@ async function showDetail(id) {
 	}
 }
 
+function renderResultInfo(total) {
+	if (!state.regionId) {
+		resultInfoEl.textContent = `${total} espèce(s) trouvée(s)`;
+		return;
+	}
+	resultInfoEl.innerHTML = "";
+	resultInfoEl.append(`${total} espèce(s) trouvée(s) en ${state.regionName} `);
+	const clearBtn = document.createElement("button");
+	clearBtn.type = "button";
+	clearBtn.className = "clear-region-filter";
+	clearBtn.textContent = "✕ retirer le filtre régional";
+	clearBtn.addEventListener("click", () => {
+		state.regionId = "";
+		state.regionName = "";
+		state.page = 1;
+		document.getElementById("region-species").innerHTML = "";
+		loadList();
+	});
+	resultInfoEl.append(clearBtn);
+}
+
 async function loadList() {
 	try {
 		const data = await fetchSpecies({
@@ -196,10 +219,12 @@ async function loadList() {
 			habitat: state.habitat,
 			diet: state.diet,
 			status: state.status,
+			regionId: state.regionId,
 		});
 		renderList(data.species);
 		renderPagination(data.page, data.pages);
-		resultInfoEl.textContent = `${data.total} espèce(s) trouvée(s)`;
+		renderResultInfo(data.total);
+		return data;
 	} catch (err) {
 		listEl.innerHTML = `<li class="empty-state">Impossible de charger les espèces. L'API backend est-elle accessible ?</li>`;
 	}
@@ -239,7 +264,14 @@ function bindFilterEvents() {
 		});
 	});
 
-	searchInput.addEventListener("input", (e) => debouncedSearch(e.target.value.trim()));
+	searchInput.addEventListener("input", (e) => {
+		if (state.regionId) {
+			state.regionId = "";
+			state.regionName = "";
+			document.getElementById("region-species").innerHTML = "";
+		}
+		debouncedSearch(e.target.value.trim());
+	});
 }
 
 async function populateFilters() {
@@ -256,28 +288,23 @@ async function populateFilters() {
 	}
 }
 
-function renderRegionSpecies(data) {
+async function selectRegion(region) {
+	state.regionId = region.id;
+	state.regionName = region.name;
+	state.page = 1;
+	state.searchTerm = "";
+	searchInput.value = "";
+
 	const container = document.getElementById("region-species");
-	container.innerHTML = `
-		<h3>Espèces en ${data.region} (${data.total})</h3>
-		<ul class="region-species-list">
-			${data.species.map(s => `
-				<li class="region-species-item" data-id="${s.id}" tabindex="0">
-					<span class="status-badge status-${s.conservation_status}">${s.conservation_status}</span>
-					${s.name_common} <em>(${s.name_scientific})</em>
-				</li>
-			`).join("")}
-		</ul>
-	`;
-	container.querySelectorAll(".region-species-item").forEach(item => {
-		item.addEventListener("click", () => showDetail(item.dataset.id));
-		item.addEventListener("keydown", (e) => {
-			if (e.key === "Enter" || e.key === " ") {
-				e.preventDefault();
-				showDetail(item.dataset.id);
-			}
-		});
-	});
+	container.innerHTML = `<p>Chargement des espèces en ${region.name}…</p>`;
+
+	const data = await loadList();
+
+	container.innerHTML = data
+		? `<p>${data.total} espèce(s) en ${region.name} — affichées dans le catalogue ci-dessous ↓</p>`
+		: "";
+
+	document.getElementById("explorer")?.scrollIntoView({ behavior: "smooth" });
 }
 
 function bindBackToTop() {
@@ -298,7 +325,7 @@ async function init() {
 	bindBackToTop();
 	await populateFilters();
 	await loadList();
-	await initMap(renderRegionSpecies);
+	await initMap(selectRegion);
 	await initDashboard();
 }
 

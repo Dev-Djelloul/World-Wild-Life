@@ -197,37 +197,12 @@ main {
 
 #region-species {
 	margin-top: 1.25rem;
+	font-size: 0.9rem;
+	color: var(--color-text-muted);
 }
 
-#region-species h3 {
-	font-family: var(--font-display);
-	color: var(--color-primary);
-	margin-bottom: 0.75rem;
-}
-
-.region-species-list {
-	list-style: none;
-	padding: 0;
-	margin: 0;
-	max-height: 560px;
-	overflow-y: auto;
-	display: grid;
-	gap: 0.4rem;
-}
-
-.region-species-item {
-	padding: 0.5rem 0.75rem;
-	border-radius: 8px;
-	background: #f6f3ea;
-	font-size: 0.88rem;
-	cursor: pointer;
-	transition: background 0.15s ease;
-}
-
-.region-species-item:hover,
-.region-species-item:focus-visible {
-	background: #e6ede3;
-	outline: none;
+#region-species:empty {
+	display: none;
 }
 
 /* ---------- Filters ---------- */
@@ -266,6 +241,21 @@ main {
 	font-size: 0.85rem;
 	color: var(--color-text-muted);
 	margin: 0 0 1rem;
+}
+
+.clear-region-filter {
+	border: 1px solid var(--color-border);
+	background: var(--color-surface);
+	border-radius: 999px;
+	padding: 0.1rem 0.6rem;
+	font-size: 0.78rem;
+	color: var(--color-text-muted);
+	cursor: pointer;
+	transition: background 0.15s ease;
+}
+
+.clear-region-filter:hover {
+	background: #eef2ea;
 }
 
 /* ---------- Species grid ---------- */
