@@ -42,8 +42,8 @@ function renderList(species) {
 
 	listEl.innerHTML = species.map(s => `
 		<li class="species-card" data-id="${s.id}" tabindex="0">
-			${s.image_url ? `<img class="species-thumb" src="${s.image_url}" alt="${s.name_common}" onerror="this.remove()">` : ""}
-			<strong>${s.name_common}</strong>
+			${s.image_url ? `<img class="species-thumb" src="${s.image_url}" alt="${i18nInstance.species(s.name_common)}" onerror="this.remove()">` : ""}
+			<strong>${i18nInstance.species(s.name_common)}</strong>
 			<em>${s.name_scientific}</em>
 			<div class="status">
 				<span class="status-badge status-${s.conservation_status}">${s.conservation_status}</span>
@@ -143,7 +143,7 @@ function renderPhotosEnrichment(id, data) {
 		<div class="photo-gallery">
 			${data.photos.map(p => `
 				<a href="${p.pexels_url}" target="_blank" rel="noopener" title="${i18nInstance.t("photo_by", { name: p.photographer })}">
-					<img src="${p.url}" alt="${data.name_common} — ${i18nInstance.t("photo_by", { name: p.photographer })}" loading="lazy">
+					<img src="${p.url}" alt="${i18nInstance.species(data.name_common)} — ${i18nInstance.t("photo_by", { name: p.photographer })}" loading="lazy">
 				</a>
 			`).join("")}
 		</div>
@@ -167,8 +167,8 @@ async function showDetail(id) {
 		const regions = s.regions.map(r => `${i18nInstance.region(r.name)} (${i18nInstance.presence(r.presence)})`).join(", ");
 		detailEl.innerHTML = `
 			<div class="detail-card">
-				${s.image_url ? `<img class="detail-thumb" src="${s.image_url}" alt="${s.name_common}">` : ""}
-				<h2>${s.name_common} <em>(${s.name_scientific})</em></h2>
+				${s.image_url ? `<img class="detail-thumb" src="${s.image_url}" alt="${i18nInstance.species(s.name_common)}">` : ""}
+				<h2>${i18nInstance.species(s.name_common)} <em>(${s.name_scientific})</em></h2>
 				<div class="detail-meta">
 					<span><span class="status-badge status-${s.conservation_status}">${s.conservation_status}</span> ${i18nInstance.t("iucn_status_label")}</span>
 					<span><strong>${i18nInstance.t("habitat_label")}</strong> ${i18nInstance.habitat(s.habitat)}</span>
@@ -326,7 +326,7 @@ function renderRegionQuickList(region, data) {
 			${data.species.map(s => `
 				<li class="region-species-item" data-id="${s.id}" tabindex="0">
 					<span class="status-badge status-${s.conservation_status}">${s.conservation_status}</span>
-					${s.name_common} <em>(${s.name_scientific})</em>
+					${i18nInstance.species(s.name_common)} <em>(${s.name_scientific})</em>
 				</li>
 			`).join("")}
 		</ul>
