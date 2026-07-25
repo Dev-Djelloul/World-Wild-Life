@@ -6,6 +6,9 @@ import { listFilters } from "./routes/filters.js";
 import { getStats } from "./routes/stats.js";
 import { getLiveIucnStatus, syncAllIucnStatuses } from "./routes/iucn.js";
 import { getLiveTaxonomy, syncAllTaxonomies } from "./routes/taxonomy.js";
+import { getLiveWikidata } from "./routes/wikidata.js";
+import { getLiveEol } from "./routes/eol.js";
+import { getLivePhotos } from "./routes/pexels.js";
 
 export default {
 	async fetch(request, env) {
@@ -19,6 +22,9 @@ export default {
 		const speciesIdMatch = pathname.match(/^\/species\/(\d+)$/);
 		const speciesIucnMatch = pathname.match(/^\/species\/(\d+)\/iucn$/);
 		const speciesTaxonomyMatch = pathname.match(/^\/species\/(\d+)\/taxonomy$/);
+		const speciesWikidataMatch = pathname.match(/^\/species\/(\d+)\/wikidata$/);
+		const speciesEolMatch = pathname.match(/^\/species\/(\d+)\/eol$/);
+		const speciesPhotosMatch = pathname.match(/^\/species\/(\d+)\/photos$/);
 		const regionSpeciesMatch = pathname.match(/^\/regions\/(\d+)\/species$/);
 
 		let response;
@@ -28,6 +34,12 @@ export default {
 			response = await getLiveIucnStatus(speciesIucnMatch[1], env);
 		} else if (speciesTaxonomyMatch && request.method === "GET") {
 			response = await getLiveTaxonomy(speciesTaxonomyMatch[1], env);
+		} else if (speciesWikidataMatch && request.method === "GET") {
+			response = await getLiveWikidata(speciesWikidataMatch[1], env);
+		} else if (speciesEolMatch && request.method === "GET") {
+			response = await getLiveEol(speciesEolMatch[1], env);
+		} else if (speciesPhotosMatch && request.method === "GET") {
+			response = await getLivePhotos(speciesPhotosMatch[1], env);
 		} else if (speciesIdMatch && request.method === "GET") {
 			response = await getSpecies(speciesIdMatch[1], env);
 		} else if (pathname === "/search" && request.method === "GET") {

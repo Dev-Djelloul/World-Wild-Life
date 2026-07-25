@@ -41,7 +41,10 @@ world-wild-life/
 │   │       ├── filters.js   # valeurs distinctes (dropdowns)
 │   │       ├── stats.js     # statistiques globales
 │   │       ├── iucn.js      # proxy live + synchro batch IUCN Red List
-│   │       └── taxonomy.js  # proxy live + synchro batch NCBI Taxonomy
+│   │       ├── taxonomy.js  # proxy live + synchro batch NCBI Taxonomy
+│   │       ├── wikidata.js  # proxy live Wikidata (image, statut IUCN croisé)
+│   │       ├── eol.js       # proxy live Encyclopedia of Life (lien de fiche)
+│   │       └── pexels.js    # proxy live Pexels (galerie photo alternative)
 │   ├── middleware/cors.js
 │   ├── db/
 │   │   ├── schema.sql
@@ -70,13 +73,14 @@ npx wrangler d1 execute world-wild-life-db --local --file=db/schema.sql
 npx wrangler d1 execute world-wild-life-db --local --file=db/seed.sql
 ```
 
-Pour tester la route IUCN en local, créer `backend/.dev.vars` :
+Pour tester les routes IUCN et Pexels en local, créer `backend/.dev.vars` :
 
 ```
 IUCN_API_TOKEN=<votre-token>
+PEXELS_API_KEY=<votre-clé>
 ```
 
-(inscription gratuite sur [api.iucnredlist.org](https://api.iucnredlist.org/users/sign_up))
+(inscription gratuite sur [api.iucnredlist.org](https://api.iucnredlist.org/users/sign_up) et [pexels.com/api](https://www.pexels.com/api/)). Les routes NCBI Taxonomy, Wikidata et EOL n'ont besoin d'aucune clé.
 
 ### Frontend
 
@@ -97,6 +101,7 @@ npx wrangler deploy
 npx wrangler d1 execute world-wild-life-db --remote --file=db/schema.sql
 npx wrangler d1 execute world-wild-life-db --remote --file=db/seed.sql
 npx wrangler secret put IUCN_API_TOKEN
+npx wrangler secret put PEXELS_API_KEY
 ```
 
 **Frontend (Netlify) :**
@@ -123,6 +128,9 @@ Tests unitaires et d'intégration (Vitest + [`@cloudflare/vitest-pool-workers`](
 | `GET /species/:id` | Détail d'une espèce + régions associées |
 | `GET /species/:id/iucn` | Statut de conservation en direct depuis l'API IUCN Red List (caché 24h en KV) |
 | `GET /species/:id/taxonomy` | Taxonomie (kingdom/phylum/class) en direct depuis NCBI Taxonomy (cachée 30j en KV) |
+| `GET /species/:id/wikidata` | Fiche Wikidata en direct : image, lien, statut IUCN croisé (cachée 30j en KV) |
+| `GET /species/:id/eol` | Lien vers la fiche Encyclopedia of Life (cachée 30j en KV) |
+| `GET /species/:id/photos` | Galerie photo alternative depuis Pexels (cachée 7j en KV, nécessite `PEXELS_API_KEY`) |
 | `GET /search?q=` | Recherche full-text (nom commun, scientifique, habitat, description) |
 | `GET /regions` | Liste des régions (caché en KV, TTL 1h) |
 | `GET /regions/:id/species` | Espèces d'une région, paginé |
@@ -149,9 +157,9 @@ Voir [backend/db/seed.sql](backend/db/seed.sql) pour le détail.
 | Wikimedia Commons (images) | ✅ Intégré | 250/250 espèces ont une vraie photo, récupérée via l'API Wikipedia par nom scientifique, vérifiée sans doublon |
 | IUCN Red List API | ✅ Intégré | Synchronisation batch des 250 statuts (14 corrections réelles appliquées) + route live `GET /species/:id/iucn` (proxy sécurisé, token en secret Cloudflare) + rafraîchissement automatique hebdomadaire (Cron Trigger) |
 | NCBI Taxonomy | ✅ Intégré | Route live `GET /species/:id/taxonomy` (cachée 30j en KV) + rafraîchissement automatique hebdomadaire (Cron Trigger) qui vérifie/corrige kingdom, phylum et class pour les 250 espèces |
-| WikiData API | ⏳ Non intégré | Superflu, couvert par NCBI Taxonomy pour les rangs taxonomiques |
-| Pexels | ⏳ Non intégré | Superflu, couvert par Wikimedia |
-| Encyclopedia of Life | ⏳ Non intégré | — |
+| WikiData API | ✅ Intégré | Route live `GET /species/:id/wikidata` (cachée 30j en KV) : image Commons, lien Wikidata, statut IUCN croisé (P141) — complémentaire à NCBI/IUCN, pas un doublon |
+| Pexels | ✅ Intégré | Route live `GET /species/:id/photos` (cachée 7j en KV) : galerie alternative de 5 photos, en plus des photos Wikimedia déjà en base — nécessite `PEXELS_API_KEY` (secret Cloudflare) |
+| Encyclopedia of Life | ⚠️ Partiellement intégré | Route live `GET /species/:id/eol` (cachée 30j en KV) limitée à un lien direct vers la fiche — l'API classique de contenu (descriptions, images, IUCN) est dépréciée côté EOL et ne renvoie plus que des métadonnées vides |
 
 ### Notes sur l'intégration IUCN
 
@@ -167,6 +175,22 @@ Voir [backend/db/seed.sql](backend/db/seed.sql) pour le détail.
 - NCBI utilise `Metazoa` comme rang `kingdom` pour les animaux ; le code le normalise en `Animalia` pour rester cohérent avec le reste du jeu de données.
 - **Rafraîchissement automatique** : un second Cron Trigger (`0 4 * * SUN`, chaque dimanche 4h UTC — décalé d'1h par rapport à la synchro IUCN) exécute [`syncAllTaxonomies`](backend/src/routes/taxonomy.js) qui vérifie/corrige `kingdom`, `phylum` et `class` pour les 250 espèces et rafraîchit le cache KV (TTL 30 jours, la taxonomie changeant très rarement).
 
+### Notes sur l'intégration WikiData
+
+- Utilise l'API publique `action=wbsearchentities` (recherche par nom scientifique) puis `action=wbgetentities` (claims + labels), sans clé requise.
+- Wikimedia impose depuis peu un header `User-Agent` descriptif sur ses APIs — son absence fait échouer les requêtes silencieusement (réponse en texte brut au lieu du JSON attendu). Le code envoie un User-Agent dédié sur chaque appel.
+- Sert de complément à IUCN/NCBI plutôt qu'un doublon : image libre de droits (Commons, propriété P18) et statut de conservation IUCN croisé (propriété P141, avec un second appel pour résoudre le libellé) — utile pour repérer d'éventuels écarts entre sources.
+
+### Notes sur l'intégration Encyclopedia of Life
+
+- L'API classique `eol.org/api/pages` (descriptions, images, statut IUCN par fiche) est dépréciée côté EOL : elle répond toujours HTTP 200 mais ne renvoie plus aucun `dataObjects` exploitable.
+- L'intégration se limite donc à `eol.org/api/search`, qui reste fonctionnelle, pour retrouver l'identifiant de fiche et exposer un lien direct (`eol_page_url`).
+
+### Notes sur l'intégration Pexels
+
+- Nécessite une clé API gratuite ([pexels.com/api](https://www.pexels.com/api/)), à définir en secret Cloudflare (`PEXELS_API_KEY`) — la route renvoie `503` si elle est absente, comme pour IUCN.
+- Sert de galerie alternative (5 photos par espèce, recherche sur le nom commun) : les 250 espèces ont déjà une photo Wikimedia vérifiée en base, qui reste la source principale.
+
 ## Roadmap restante
 
-Tous les chantiers identifiés ont été traités. Idées pour de futures itérations : Encyclopedia of Life (fiches espèces enrichies), tests end-to-end frontend, alerting sur échec de synchro cron.
+Tous les chantiers identifiés ont été traités. Idées pour de futures itérations : tests end-to-end frontend, alerting sur échec de synchro cron.

@@ -42,6 +42,35 @@ describe("router", () => {
 		vi.unstubAllGlobals();
 	});
 
+	it("route GET /species/:id/wikidata vers getLiveWikidata", async () => {
+		vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify({ search: [] }), { status: 200 })));
+
+		const res = await worker.fetch(new Request("https://api/species/1/wikidata"), env);
+		const body = await res.json();
+
+		expect(res.status).toBe(200);
+		expect(body.message).toBeDefined();
+
+		vi.unstubAllGlobals();
+	});
+
+	it("route GET /species/:id/eol vers getLiveEol", async () => {
+		vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify({ results: [] }), { status: 200 })));
+
+		const res = await worker.fetch(new Request("https://api/species/1/eol"), env);
+		const body = await res.json();
+
+		expect(res.status).toBe(200);
+		expect(body.message).toBeDefined();
+
+		vi.unstubAllGlobals();
+	});
+
+	it("route GET /species/:id/photos vers getLivePhotos (503 sans clé)", async () => {
+		const res = await worker.fetch(new Request("https://api/species/1/photos"), { ...env, PEXELS_API_KEY: undefined });
+		expect(res.status).toBe(503);
+	});
+
 	it("route GET /regions/:id/species vers getRegionSpecies", async () => {
 		const res = await worker.fetch(new Request("https://api/regions/1/species"), env);
 		const body = await res.json();
