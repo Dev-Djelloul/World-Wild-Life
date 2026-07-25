@@ -2,6 +2,8 @@
 
 Application web interactive pour consulter, filtrer et explorer les espèces animales du monde, leurs habitats, leurs statuts de conservation UICN et leurs zones géographiques.
 
+Cette application a été réalisée avec Claude code.
+
 **En ligne :**
 - Frontend : [world-wild-life.netlify.app](https://world-wild-life.netlify.app)
 - API : [world-wild-life-api.djelloulabid75.workers.dev](https://world-wild-life-api.djelloulabid75.workers.dev)
