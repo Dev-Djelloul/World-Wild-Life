@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 180" role="img" aria-label="World Wild Life">
+  <defs>
+    <style>
+      .eyebrow {
+        font-family: "Cormorant Garamond", Georgia, serif;
+        font-size: 13px;
+        letter-spacing: 5px;
+        text-transform: uppercase;
+        fill: #b8d4e3;
+      }
+      .hero {
+        font-family: "Cormorant Garamond", Georgia, serif;
+        font-size: 108px;
+        font-weight: 700;
+        font-style: italic;
+        fill: #e8f4fa;
+        letter-spacing: -2px;
+      }
+      .hero-accent {
+        fill: #5fe3c0;
+      }
+      .sub {
+        font-family: "Cormorant Garamond", Georgia, serif;
+        font-size: 16px;
+        letter-spacing: 7px;
+        text-transform: uppercase;
+        fill: #5fe3c0;
+        font-style: normal;
+        font-weight: 400;
+      }
+    </style>
+  </defs>
+
+  <!-- Motif : oiseau en vol abstrait -->
+  <g transform="translate(388, 18)">
+    <path d="M4 20 C12 8, 22 4, 32 10 C42 4, 52 8, 60 20"
+          stroke="#5fe3c0" stroke-width="1.6" fill="none" stroke-linecap="round" opacity="0.9"/>
+    <path d="M10 26 C18 18, 25 16, 32 19 C39 16, 46 18, 54 26"
+          stroke="#5fe3c0" stroke-width="0.9" fill="none" stroke-linecap="round" opacity="0.45"/>
+    <!-- Globe stylisé -->
+    <circle cx="32" cy="30" r="12" stroke="#5fe3c0" stroke-width="0.7" fill="none" opacity="0.25"/>
+    <ellipse cx="32" cy="30" rx="7" ry="12" stroke="#5fe3c0" stroke-width="0.7" fill="none" opacity="0.18"/>
+    <line x1="20" y1="30" x2="44" y2="30" stroke="#5fe3c0" stroke-width="0.7" opacity="0.18"/>
+    <circle cx="32" cy="30" r="1.8" fill="#5fe3c0" opacity="0.7"/>
+  </g>
+
+  <!-- "WORLD" eyebrow -->
+  <text x="8" y="42" class="eyebrow">World</text>
+
+  <!-- "WILD" hero -->
+  <text x="2" y="138" class="hero"><tspan class="hero-accent">W</tspan>ild</text>
+
+  <!-- Réglette + "LIFE" -->
+  <line x1="2" y1="155" x2="162" y2="155" stroke="#f2a15f" stroke-width="0.8" opacity="0.55"/>
+  <text x="2" y="172" class="sub">Life</text>
+  <line x1="76" y1="155" x2="460" y2="155" stroke="#f2a15f" stroke-width="0.8" opacity="0.25"/>
+</svg>
