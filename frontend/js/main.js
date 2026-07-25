@@ -288,11 +288,23 @@ async function populateFilters() {
 	}
 }
 
+// Récupère la totalité des espèces d'une région (pas seulement une page) : l'API plafonne
+// à 100 résultats par requête, donc on boucle sur les pages suivantes si nécessaire — aucune
+// région n'en compte autant aujourd'hui (max 77), mais ça reste correct si le jeu de données grandit.
+async function fetchAllRegionSpecies(regionId) {
+	const first = await fetchSpecies({ regionId, page: 1, limit: 100 });
+	if (!first) return null;
+	if (first.pages <= 1) return first;
+
+	const rest = await Promise.all(
+		Array.from({ length: first.pages - 1 }, (_, i) => fetchSpecies({ regionId, page: i + 2, limit: 100 }))
+	);
+	const species = [first, ...rest].flatMap(r => r?.species ?? []);
+	return { ...first, species };
+}
+
 function renderRegionQuickList(region, data) {
 	const container = document.getElementById("region-species");
-
-	// Construite à partir des mêmes données que le catalogue filtré ci-dessous
-	// (page courante) — jamais de décalage possible avec le total affiché.
 	container.innerHTML = `
 		<h3>Espèces en ${region.name} (${data.total})</h3>
 		<ul class="region-species-list">
@@ -303,7 +315,6 @@ function renderRegionQuickList(region, data) {
 				</li>
 			`).join("")}
 		</ul>
-		${data.total > data.species.length ? `<p class="region-species-more">+ ${data.total - data.species.length} autre(s) — voir le catalogue ci-dessous ↓</p>` : ""}
 	`;
 
 	container.querySelectorAll(".region-species-item").forEach(item => {
@@ -327,10 +338,10 @@ async function selectRegion(region) {
 	const container = document.getElementById("region-species");
 	container.innerHTML = `<p>Chargement des espèces en ${region.name}…</p>`;
 
-	const data = await loadList();
+	const [, quickListData] = await Promise.all([loadList(), fetchAllRegionSpecies(region.id)]);
 
-	if (data) {
-		renderRegionQuickList(region, data);
+	if (quickListData) {
+		renderRegionQuickList(region, quickListData);
 	} else {
 		container.innerHTML = "";
 	}
