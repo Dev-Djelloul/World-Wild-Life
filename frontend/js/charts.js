@@ -34,12 +34,12 @@ const donutCenterPlugin = {
 		ctx.fill();
 
 		const total = chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-		ctx.font = "bold 20px 'Fraunces', Georgia, serif";
+		ctx.font = "bold 22px 'Cormorant Garamond', Georgia, serif";
 		ctx.fillStyle = "#5fe3c0";
 		ctx.textAlign = "center";
 		ctx.textBaseline = "middle";
 		ctx.fillText(total, cx, cy - 10);
-		ctx.font = "11px 'Work Sans', system-ui, sans-serif";
+		ctx.font = "11px 'DM Sans', system-ui, sans-serif";
 		ctx.fillStyle = "#b8d4e3";
 		ctx.fillText("espèces", cx, cy + 10);
 		ctx.restore();
@@ -62,7 +62,7 @@ export async function initDashboard() {
 	if (!window.Chart) return;
 
 	window.Chart.defaults.color = MUTED_COLOR;
-	window.Chart.defaults.font.family = "'Work Sans', system-ui, sans-serif";
+	window.Chart.defaults.font.family = "'DM Sans', system-ui, sans-serif";
 
 	const stats = await fetchStats();
 
