@@ -4,7 +4,7 @@ import { listRegions, getRegionSpecies } from "./routes/regions.js";
 import { searchSpecies } from "./routes/search.js";
 import { listFilters } from "./routes/filters.js";
 import { getStats } from "./routes/stats.js";
-import { getLiveIucnStatus } from "./routes/iucn.js";
+import { getLiveIucnStatus, syncAllIucnStatuses } from "./routes/iucn.js";
 
 export default {
 	async fetch(request, env) {
@@ -41,5 +41,10 @@ export default {
 		}
 
 		return withCors(response);
+	},
+
+	// Cron Trigger (voir wrangler.toml) : resynchronise périodiquement les statuts IUCN.
+	async scheduled(event, env, ctx) {
+		ctx.waitUntil(syncAllIucnStatuses(env));
 	},
 };

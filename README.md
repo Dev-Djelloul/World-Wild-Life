@@ -129,7 +129,7 @@ Voir [backend/db/seed.sql](backend/db/seed.sql) pour le détail.
 | OpenStreetMap (tuiles) | ✅ Intégré | Fond de carte Leaflet en Phase 3 |
 | GeoJSON (frontières régions) | ✅ Intégré | Frontières de pays réelles (Natural Earth, domaine public, via click_that_hood) affichées au clic sur 6/8 régions — chargées à la demande |
 | Wikimedia Commons (images) | ✅ Intégré | 250/250 espèces ont une vraie photo, récupérée via l'API Wikipedia par nom scientifique, vérifiée sans doublon |
-| IUCN Red List API | ✅ Intégré | Synchronisation batch des 250 statuts (14 corrections réelles appliquées) + route live `GET /species/:id/iucn` (proxy sécurisé, token en secret Cloudflare) |
+| IUCN Red List API | ✅ Intégré | Synchronisation batch des 250 statuts (14 corrections réelles appliquées) + route live `GET /species/:id/iucn` (proxy sécurisé, token en secret Cloudflare) + rafraîchissement automatique hebdomadaire (Cron Trigger) |
 | WikiData API | ⏳ Non intégré | — |
 | Pexels | ⏳ Non intégré | Superflu, couvert par Wikimedia |
 | NCBI Taxonomy | ⏳ Non intégré | Champs kingdom/phylum/class saisis manuellement |
@@ -141,9 +141,9 @@ Voir [backend/db/seed.sql](backend/db/seed.sql) pour le détail.
 - Certaines espèces n'ont pas d'évaluation IUCN pour des raisons légitimes : espèces domestiquées non évaluées globalement (ex. dromadaire), ou synonymes taxonomiques non reconnus par l'API (ex. *Taurotragus oryx* vs *Tragelaphus oryx*).
 - Un même taxon peut avoir plusieurs évaluations "latest" simultanées à des échelles différentes (ex. Europe vs Global) — le code filtre explicitement sur le scope global (code `"1"`) pour éviter d'appliquer un statut régional par erreur.
 - Le statut `DD` (Data Deficient) est un statut UICN légitime, désormais supporté par l'UI (ex. l'orque *Orcinus orca* n'est pas évaluée mondialement en raison d'incertitudes taxonomiques sur ses écotypes).
+- **Rafraîchissement automatique** : un Cron Trigger Cloudflare Workers (`0 3 * * 0`, chaque dimanche 3h UTC) exécute [`syncAllIucnStatuses`](backend/src/routes/iucn.js) qui reparcourt les 250 espèces par lots de 10 requêtes parallèles, met à jour `SPECIES.conservation_status` en cas de changement et rafraîchit le cache KV. Actif uniquement une fois déployé (`wrangler deploy`) — les crons ne se déclenchent pas en local avec `wrangler dev`. Test manuel possible via `npx wrangler dev --test-scheduled` puis `curl "http://localhost:8787/__scheduled?cron=0+3+*+*+0"`.
 
 ## Roadmap restante
 
 - [ ] Tests unitaires et d'intégration
 - [ ] Intégration WikiData / NCBI Taxonomy pour enrichir la taxonomie
-- [ ] Rafraîchissement automatique périodique des statuts IUCN (actuellement synchronisation manuelle + route live à la demande)
