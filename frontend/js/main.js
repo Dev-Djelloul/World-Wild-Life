@@ -12,6 +12,7 @@ import {
 import { debounce } from "./search.js";
 import { initMap } from "./map.js";
 import { initDashboard } from "./charts.js";
+import { i18nInstance } from "./i18n.js";
 
 const listEl = document.getElementById("species-list");
 const detailEl = document.getElementById("species-detail");
@@ -360,7 +361,40 @@ function bindBackToTop() {
 	});
 }
 
+function initLanguageToggle() {
+	const langToggle = document.getElementById("lang-toggle");
+	const langMenu = document.getElementById("lang-menu");
+	const langOptions = document.querySelectorAll(".lang-option");
+
+	langToggle.addEventListener("click", () => {
+		const isOpen = langMenu.hidden === false;
+		langMenu.hidden = isOpen;
+		langToggle.setAttribute("aria-expanded", !isOpen);
+	});
+
+	langOptions.forEach((option) => {
+		option.addEventListener("click", () => {
+			const lang = option.getAttribute("data-lang");
+			i18nInstance.setLanguage(lang);
+
+			langOptions.forEach(o => o.classList.remove("active"));
+			option.classList.add("active");
+
+			langMenu.hidden = true;
+			langToggle.setAttribute("aria-expanded", "false");
+		});
+	});
+
+	document.addEventListener("click", (e) => {
+		if (!langToggle.contains(e.target) && !langMenu.contains(e.target)) {
+			langMenu.hidden = true;
+			langToggle.setAttribute("aria-expanded", "false");
+		}
+	});
+}
+
 async function init() {
+	initLanguageToggle();
 	bindFilterEvents();
 	bindBackToTop();
 	await populateFilters();

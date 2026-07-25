@@ -1,4 +1,5 @@
 import { fetchStats } from "./api-client.js";
+import { i18nInstance } from "./i18n.js";
 
 // Palette UICN océanique : teintes refroidies + bioluminescence
 const STATUS_COLORS = {
@@ -46,14 +47,9 @@ const donutCenterPlugin = {
 	},
 };
 
-const STATUS_LABELS = {
-	LC: "Préoccupation mineure",
-	NT: "Quasi menacée",
-	VU: "Vulnérable",
-	EN: "En danger",
-	CR: "En danger critique",
-	DD: "Données insuffisantes",
-};
+function getStatusLabel(statusCode) {
+	return i18nInstance.t(`uicn_status.${statusCode}`);
+}
 
 let statusChart = null;
 let habitatChart = null;
@@ -80,7 +76,7 @@ export async function initDashboard() {
 	statusChart = new window.Chart(statusCtx, {
 		type: "doughnut",
 		data: {
-			labels: statusLabels.map(s => STATUS_LABELS[s] || s),
+			labels: statusLabels.map(s => getStatusLabel(s)),
 			datasets: [{
 				data: statusData,
 				backgroundColor: statusLabels.map(s => STATUS_COLORS[s] || "#999"),
