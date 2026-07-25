@@ -164,35 +164,74 @@ a:hover {
 	max-width: 1140px;
 	margin: 0 auto;
 	display: flex;
-	align-items: center;
-	gap: 1.75rem;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 1.5rem;
 }
 
-.logo {
+.logo-badge {
+	display: flex;
+	align-items: center;
+	gap: 1.2rem;
+}
+
+.badge-icon {
 	flex-shrink: 0;
+}
+
+.badge-icon svg {
 	width: 68px;
 	height: 68px;
 	filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.45));
 }
 
-#site-header h1 {
+.badge-text {
+	display: flex;
+	flex-direction: column;
+	gap: 0.2rem;
+}
+
+.badge-world {
 	font-family: var(--font-display);
+	font-size: 0.85rem;
+	letter-spacing: 0.2em;
+	text-transform: uppercase;
+	color: rgba(184, 212, 227, 0.9);
+	font-weight: 500;
+}
+
+.badge-wild {
+	font-family: var(--font-display);
+	font-size: clamp(1.8rem, 3.5vw, 2.6rem);
 	font-weight: 700;
-	font-size: clamp(2.2rem, 4.5vw, 3.2rem);
-	margin: 0 0 0.4rem;
-	letter-spacing: -0.01em;
-	line-height: 1.05;
+	font-style: italic;
+	letter-spacing: -0.02em;
+	line-height: 1;
 	background: linear-gradient(180deg, #ffffff 0%, #b9e4f2 100%);
 	-webkit-background-clip: text;
 	background-clip: text;
 	color: transparent;
 }
 
-#site-header p {
+.wild-accent {
+	color: #5fe3c0;
+}
+
+.badge-life {
+	font-family: var(--font-display);
+	font-size: 0.82rem;
+	letter-spacing: 0.22em;
+	text-transform: uppercase;
+	color: rgba(95, 227, 192, 0.95);
+	font-weight: 500;
+}
+
+.header-tagline {
 	margin: 0;
 	color: rgba(232, 244, 250, 0.82);
 	font-size: 1.02rem;
 	max-width: 48ch;
+	line-height: 1.5;
 }
 
 /* ---------- Section icons ---------- */
@@ -1063,7 +1102,17 @@ a:hover {
 
 @media (max-width: 600px) {
 	.header-inner {
+		align-items: center;
+		text-align: center;
+	}
+
+	.logo-badge {
 		flex-direction: column;
+		width: 100%;
+		gap: 0.8rem;
+	}
+
+	.header-tagline {
 		text-align: center;
 	}
 
