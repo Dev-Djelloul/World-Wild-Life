@@ -55,6 +55,43 @@ function getStatusDefinition(statusCode) {
 	return i18nInstance.t(`uicn_definitions.${statusCode}`) || statusCode;
 }
 
+// Tooltip HTML externe : contourne le clipping du tooltip natif Chart.js,
+// qui est dessiné dans les limites du canvas et ne peut donc jamais dépasser sa largeur.
+function externalTooltipHandler(context) {
+	const { chart, tooltip } = context;
+	let el = document.getElementById("donut-tooltip");
+	if (!el) {
+		el = document.createElement("div");
+		el.id = "donut-tooltip";
+		el.className = "chartjs-tooltip";
+		document.body.appendChild(el);
+	}
+
+	if (tooltip.opacity === 0) {
+		el.style.opacity = 0;
+		return;
+	}
+
+	if (tooltip.body) {
+		const lines = tooltip.body.map(b => b.lines).flat();
+		el.innerHTML = `<strong>${lines[0] || ""}</strong>${lines[1] ? `<br>${lines[1]}` : ""}`;
+	}
+
+	const rect = chart.canvas.getBoundingClientRect();
+	let left = rect.left + window.scrollX + tooltip.caretX;
+	const top = rect.top + window.scrollY + tooltip.caretY - 12;
+
+	// Clamp horizontal pour rester dans la fenêtre visible
+	const halfWidth = el.offsetWidth / 2 || 140;
+	const margin = 12;
+	left = Math.max(halfWidth + margin, Math.min(left, window.innerWidth - halfWidth - margin));
+
+	el.style.opacity = 1;
+	el.style.left = `${left}px`;
+	el.style.top = `${top}px`;
+	el.style.transform = "translate(-50%, -100%)";
+}
+
 let statusChart = null;
 let habitatChart = null;
 
@@ -97,19 +134,13 @@ export async function initDashboard() {
 				legend: {
 					position: "bottom",
 					labels: { boxWidth: 10, boxHeight: 10, usePointStyle: true, pointStyle: "circle", color: TEXT_COLOR, font: { size: 11 }, padding: 12 },
+					onHover: (event) => { event.native.target.style.cursor = "pointer"; },
+					onLeave: (event) => { event.native.target.style.cursor = "default"; },
 				},
 				tooltip: {
-					backgroundColor: "rgba(6, 34, 51, 0.95)",
-					borderColor: "rgba(95, 227, 192, 0.5)",
-					borderWidth: 1,
-					titleColor: "#fff",
-					bodyColor: MUTED_COLOR,
-					padding: 20,
-					maxWidth: 1200,
-					displayColors: false,
-					caretPadding: 15,
+					enabled: false,
+					external: externalTooltipHandler,
 					callbacks: {
-						title: () => "",
 						label: (context) => {
 							const statusCode = statusLabels[context.dataIndex];
 							const count = context.parsed;
@@ -120,7 +151,6 @@ export async function initDashboard() {
 								getStatusDefinition(statusCode)
 							];
 						},
-						afterLabel: () => "",
 					},
 				},
 			},

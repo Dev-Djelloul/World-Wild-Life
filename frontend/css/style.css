@@ -539,15 +539,29 @@ a:hover {
 	text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
 }
 
-/* Indicateur de cliquabilité sur la légende UICN */
-.chart-container ul li {
-	cursor: pointer;
-	transition: opacity 0.2s ease;
+/* Tooltip HTML externe du donut UICN (remplace le tooltip canvas, tronqué par les bords du canvas) */
+.chartjs-tooltip {
+	position: absolute;
+	pointer-events: none;
+	background: rgba(6, 34, 51, 0.97);
+	border: 1px solid rgba(95, 227, 192, 0.5);
+	border-radius: 12px;
+	color: var(--color-text-muted);
+	padding: 14px 18px;
+	font-family: var(--font-body);
+	font-size: 0.85rem;
+	line-height: 1.5;
+	max-width: 280px;
+	width: max-content;
+	box-shadow: var(--shadow-md);
+	opacity: 0;
+	transform: translate(-50%, 0);
+	transition: opacity 0.12s ease;
+	z-index: 20;
 }
 
-.chart-container ul li:hover {
-	opacity: 0.85;
-	text-decoration: underline;
+.chartjs-tooltip strong {
+	color: #fff;
 }
 
 /* ---------- Globe ---------- */
