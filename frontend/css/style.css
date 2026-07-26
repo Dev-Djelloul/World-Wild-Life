@@ -241,7 +241,7 @@ a:hover {
 .header-tagline {
 	margin: 0;
 	color: rgba(232, 244, 250, 0.85);
-	font-size: clamp(1rem, 2.2vw, 1.3rem);
+	font-size: clamp(0.85rem, 1.8vw, 1.05rem);
 	max-width: 60ch;
 	line-height: 1.65;
 	font-style: italic;
@@ -252,7 +252,7 @@ a:hover {
 
 .header-controls {
 	position: absolute;
-	bottom: 1.5rem;
+	top: 1.5rem;
 	right: 1.5rem;
 	z-index: 100;
 }
