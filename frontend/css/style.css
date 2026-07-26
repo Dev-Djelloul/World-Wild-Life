@@ -409,7 +409,7 @@ a:hover {
 	box-shadow:
 		var(--shadow-md),
 		inset 0 1px 0 rgba(255, 255, 255, 0.16);
-	padding: 2rem;
+	padding: 3rem;
 	-webkit-backdrop-filter: var(--glass-blur);
 	backdrop-filter: var(--glass-blur);
 }
@@ -1173,13 +1173,13 @@ a:hover {
 	gap: 0.5rem;
 	text-align: center;
 	padding: 2rem 1.5rem 3rem;
-	color: var(--color-text-muted);
+	color: var(--biolum);
 	font-size: 0.85rem;
 }
 
 .footer-logo {
-	width: 28px;
-	height: 28px;
+	width: 65px;
+	height: 65px;
 	flex-shrink: 0;
 	opacity: 0.9;
 }
@@ -1197,7 +1197,7 @@ a:hover {
 	background: rgba(10, 67, 97, 0.75);
 	-webkit-backdrop-filter: blur(14px);
 	backdrop-filter: blur(14px);
-	color: var(--foam);
+	color: var(--biolum);
 	display: flex;
 	align-items: center;
 	justify-content: center;
