@@ -104,10 +104,10 @@ export async function initDashboard() {
 					borderWidth: 1,
 					titleColor: "#fff",
 					bodyColor: MUTED_COLOR,
-					padding: 18,
-					maxWidth: 800,
+					padding: 20,
+					maxWidth: 1200,
 					displayColors: false,
-					caretPadding: 12,
+					caretPadding: 15,
 					callbacks: {
 						title: () => "",
 						label: (context) => {
