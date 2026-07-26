@@ -594,6 +594,26 @@ a:hover {
 	pointer-events: none;
 }
 
+.globe-species-layer {
+	pointer-events: auto;
+}
+
+.globe-species-dot {
+	cursor: pointer;
+	stroke: rgba(255, 255, 255, 0.9);
+	stroke-width: 0.5;
+	opacity: 0.88;
+	transition: transform 0.15s ease, opacity 0.15s ease;
+	transform-box: fill-box;
+	transform-origin: center;
+}
+
+.globe-species-dot:hover {
+	transform: scale(2.2);
+	opacity: 1;
+	stroke-width: 0.8;
+}
+
 .globe-marker {
 	cursor: pointer;
 	outline: none;

@@ -3,6 +3,7 @@ import {
 	fetchSpeciesById,
 	searchSpecies,
 	fetchFilters,
+	fetchAllSpeciesInRegion,
 	fetchIucnStatus,
 	fetchTaxonomy,
 	fetchWikidata,
@@ -303,21 +304,6 @@ async function populateFilters() {
 	}
 }
 
-// Récupère la totalité des espèces d'une région (pas seulement une page) : l'API plafonne
-// à 100 résultats par requête, donc on boucle sur les pages suivantes si nécessaire — aucune
-// région n'en compte autant aujourd'hui (max 77), mais ça reste correct si le jeu de données grandit.
-async function fetchAllRegionSpecies(regionId) {
-	const first = await fetchSpecies({ regionId, page: 1, limit: 100 });
-	if (!first) return null;
-	if (first.pages <= 1) return first;
-
-	const rest = await Promise.all(
-		Array.from({ length: first.pages - 1 }, (_, i) => fetchSpecies({ regionId, page: i + 2, limit: 100 }))
-	);
-	const species = [first, ...rest].flatMap(r => r?.species ?? []);
-	return { ...first, species };
-}
-
 function renderRegionQuickList(region, data) {
 	const container = document.getElementById("region-species");
 	container.innerHTML = `
@@ -356,7 +342,7 @@ async function selectRegion(region) {
 	const container = document.getElementById("region-species");
 	container.innerHTML = `<p>${i18nInstance.t("loading_species_in_region", { region: i18nInstance.region(region.name) })}</p>`;
 
-	const [, quickListData] = await Promise.all([loadList(), fetchAllRegionSpecies(region.id)]);
+	const [, quickListData] = await Promise.all([loadList(), fetchAllSpeciesInRegion(region.id)]);
 
 	lastQuickListRegion = region;
 	lastQuickListData = quickListData;
@@ -459,7 +445,7 @@ async function init() {
 	i18nInstance.subscribe(reRenderOnLanguageChange);
 	await populateFilters();
 	await loadList();
-	await initMap(selectRegion);
+	await initMap(selectRegion, showDetail);
 	await initDashboard();
 }
 

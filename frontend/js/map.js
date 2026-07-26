@@ -1,8 +1,9 @@
-import { fetchRegions } from "./api-client.js";
+import { fetchRegions, fetchAllSpeciesInRegion } from "./api-client.js";
 import { i18nInstance } from "./i18n.js";
 
 // GeoJSON des frontières de pays par continent (Natural Earth, domaine public,
-// via click_that_hood). Chargé à la demande pour surligner la région sélectionnée.
+// via click_that_hood). Chargé pour disperser un point par espèce à l'intérieur
+// de la masse continentale réelle, et pour surligner la région sélectionnée.
 const GEOJSON_BY_REGION = {
 	"Afrique": "africa",
 	"Amérique du Sud": "south-america",
@@ -13,6 +14,8 @@ const GEOJSON_BY_REGION = {
 	// Antarctique et Océans mondiaux : pas de polygone continental pertinent, marqueur seul.
 };
 
+const OCEAN_REGION_NAME = "Océans mondiaux";
+
 const GEOJSON_BASE_URL = "https://raw.githubusercontent.com/codeforgermany/click_that_hood/main/public/data";
 const LAND_URL = "https://cdn.jsdelivr.net/npm/world-atlas@2/land-110m.json";
 
@@ -20,6 +23,16 @@ const ROTATION_SENSITIVITY = 75; // degrés de rotation par pixel, rapporté à 
 const AUTO_ROTATE_SPEED = 4; // degrés/seconde, avant la première interaction
 const MIN_SCALE_RATIO = 0.9;
 const MAX_SCALE_RATIO = 3;
+
+// Palette UICN (identique à charts.js) : les points-espèces reprennent le code couleur du statut.
+const STATUS_COLORS = {
+	LC: "#26d3aa",
+	NT: "#4dd0e1",
+	VU: "#ffa726",
+	EN: "#ff7043",
+	CR: "#d63330",
+	DD: "#80deea",
+};
 
 const geojsonCache = new Map();
 let landFeature = null;
@@ -45,7 +58,105 @@ async function loadLand() {
 	return landFeature;
 }
 
-export async function initMap(onRegionSelect) {
+// PRNG déterministe (mulberry32), pour qu'une espèce garde toujours le même point
+// d'une session à l'autre plutôt que de sauter à chaque rechargement de page.
+function mulberry32(seed) {
+	return function () {
+		seed |= 0;
+		seed = (seed + 0x6d2b79f5) | 0;
+		let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+		t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+		return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+	};
+}
+
+function hashSeed(str) {
+	let h = 2166136261;
+	for (let i = 0; i < str.length; i++) {
+		h ^= str.charCodeAt(i);
+		h = Math.imul(h, 16777619);
+	}
+	return h >>> 0;
+}
+
+// Tire un point au hasard à l'intérieur d'un polygone (rejet), en gérant le cas
+// où l'emprise passe par l'antiméridien (Asie/Océanie).
+function randomPointInPolygon(d3, rng, feature) {
+	const [[minLon, minLat], [maxLon, maxLat]] = d3.geoBounds(feature);
+	const wraps = maxLon < minLon;
+	const span1 = wraps ? 180 - minLon : 0;
+	const span2 = wraps ? maxLon + 180 : 0;
+	const totalSpan = wraps ? span1 + span2 : maxLon - minLon;
+
+	for (let i = 0; i < 400; i++) {
+		let lon;
+		if (wraps) {
+			const t = rng() * totalSpan;
+			lon = t < span1 ? minLon + t : -180 + (t - span1);
+		} else {
+			lon = minLon + rng() * totalSpan;
+		}
+		const lat = minLat + rng() * (maxLat - minLat);
+		const point = [lon, lat];
+		if (d3.geoContains(feature, point)) return point;
+	}
+	return d3.geoCentroid(feature);
+}
+
+// Tire un point au hasard sur l'océan (rejet des points tombant sur une terre émergée).
+function randomOceanPoint(d3, rng, land) {
+	for (let i = 0; i < 200; i++) {
+		const lon = -180 + rng() * 360;
+		const lat = (Math.asin(2 * rng() - 1) * 180) / Math.PI; // distribution uniforme sur la sphère
+		if (Math.abs(lat) > 78) continue;
+		const point = [lon, lat];
+		if (!land || !d3.geoContains(land, point)) return point;
+	}
+	return [0, 0];
+}
+
+// Construit un point stable par (espèce, région) : dispersé dans le polygone continental
+// réel quand on en a un, sur l'océan pour les espèces marines, sinon en secours autour
+// du centre déclaré de la région.
+async function buildSpeciesPoints(d3, regions, land) {
+	const continentRegions = regions.filter(r => GEOJSON_BY_REGION[r.name]);
+	const boundaries = await Promise.all(continentRegions.map(r => loadRegionBoundary(r.name)));
+	const boundaryByRegionId = new Map(continentRegions.map((r, i) => [r.id, boundaries[i]]));
+	const oceanRegion = regions.find(r => r.name === OCEAN_REGION_NAME);
+
+	const speciesLists = await Promise.all(regions.map(r => fetchAllSpeciesInRegion(r.id)));
+
+	const points = [];
+	regions.forEach((region, idx) => {
+		const data = speciesLists[idx];
+		if (!data?.species?.length) return;
+		const boundary = boundaryByRegionId.get(region.id);
+
+		data.species.forEach(sp => {
+			const rng = mulberry32(hashSeed(`${sp.id}-${region.id}`));
+			let coords;
+			if (boundary) {
+				coords = randomPointInPolygon(d3, rng, boundary);
+			} else if (oceanRegion && region.id === oceanRegion.id) {
+				coords = randomOceanPoint(d3, rng, land);
+			} else {
+				coords = [region.longitude + (rng() - 0.5) * 8, region.latitude + (rng() - 0.5) * 4];
+			}
+			points.push({
+				id: sp.id,
+				name_common: sp.name_common,
+				habitat: sp.habitat,
+				diet: sp.diet,
+				conservation_status: sp.conservation_status,
+				longitude: coords[0],
+				latitude: coords[1],
+			});
+		});
+	});
+	return points;
+}
+
+export async function initMap(onRegionSelect, onSpeciesSelect) {
 	const mapEl = document.getElementById("map");
 	if (!mapEl || !window.d3 || !window.topojson) return;
 
@@ -99,6 +210,7 @@ export async function initMap(onRegionSelect) {
 	const landPath = g.append("path").attr("class", "globe-land");
 	const highlightPath = g.append("path").attr("class", "globe-highlight");
 	const shadePath = g.append("path").attr("class", "globe-shade").attr("fill", "url(#globe-shade)");
+	const speciesLayer = g.append("g").attr("class", "globe-species-layer").attr("aria-hidden", "true");
 	const markerGroup = g.append("g").attr("class", "globe-markers");
 
 	let width = 0;
@@ -109,6 +221,7 @@ export async function initMap(onRegionSelect) {
 	let highlightGeojson = null;
 	let interacted = false;
 	let autoRotateTimer = null;
+	let speciesSelection = null;
 
 	function sizeToContainer() {
 		const rect = mapEl.getBoundingClientRect();
@@ -132,9 +245,9 @@ export async function initMap(onRegionSelect) {
 		return true;
 	}
 
-	function markerVisible(region) {
+	function markerVisible(d) {
 		const r = projection.rotate();
-		return d3.geoDistance([region.longitude, region.latitude], [-r[0], -r[1]]) < Math.PI / 2;
+		return d3.geoDistance([d.longitude, d.latitude], [-r[0], -r[1]]) < Math.PI / 2;
 	}
 
 	function render() {
@@ -146,6 +259,13 @@ export async function initMap(onRegionSelect) {
 		if (land) landPath.attr("d", path(land));
 		highlightPath.attr("d", highlightGeojson ? path(highlightGeojson) : null);
 
+		if (speciesSelection) {
+			speciesSelection
+				.attr("cx", d => { const p = projection([d.longitude, d.latitude]); return p ? p[0] : null; })
+				.attr("cy", d => { const p = projection([d.longitude, d.latitude]); return p ? p[1] : null; })
+				.attr("display", d => (markerVisible(d) ? null : "none"));
+		}
+
 		markerGroup.selectAll("g.globe-marker")
 			.attr("transform", d => {
 				const p = projection([d.longitude, d.latitude]);
@@ -155,14 +275,7 @@ export async function initMap(onRegionSelect) {
 			.classed("is-selected", d => d.id === selectedRegionId);
 	}
 
-	function showTooltip(region) {
-		const p = projection([region.longitude, region.latitude]);
-		if (!p) return;
-		tooltip.innerHTML = `<strong>${i18nInstance.region(region.name)}</strong>${region.description ? `<span>${region.description}</span>` : ""}`;
-		tooltip.classList.add("is-visible");
-
-		// Positionne l'infobulle en la contraignant dans le cadre : c'est ce qui
-		// empêche le texte d'être coupé quand un repère est près d'un bord.
+	function positionTooltipAt(p) {
 		const tw = tooltip.offsetWidth;
 		const th = tooltip.offsetHeight;
 		const margin = 8;
@@ -173,6 +286,23 @@ export async function initMap(onRegionSelect) {
 		top = Math.max(margin, Math.min(top, height - th - margin));
 		tooltip.style.left = `${left}px`;
 		tooltip.style.top = `${top}px`;
+	}
+
+	function showTooltip(region) {
+		const p = projection([region.longitude, region.latitude]);
+		if (!p) return;
+		tooltip.innerHTML = `<strong>${i18nInstance.region(region.name)}</strong>${region.description ? `<span>${region.description}</span>` : ""}`;
+		tooltip.classList.add("is-visible");
+		positionTooltipAt(p);
+	}
+
+	function showSpeciesTooltip(d) {
+		const p = projection([d.longitude, d.latitude]);
+		if (!p) return;
+		const statusLabel = i18nInstance.t(`uicn_status.${d.conservation_status}`);
+		tooltip.innerHTML = `<strong>${i18nInstance.species(d.name_common)}</strong><span>${statusLabel} · ${i18nInstance.habitat(d.habitat)}</span>`;
+		tooltip.classList.add("is-visible");
+		positionTooltipAt(p);
 	}
 
 	function hideTooltip() {
@@ -296,4 +426,24 @@ export async function initMap(onRegionSelect) {
 	if (typeof ResizeObserver !== "undefined") {
 		new ResizeObserver(handleResize).observe(mapEl);
 	}
+
+	// Amélioration progressive : le globe de base s'affiche et tourne immédiatement,
+	// puis les ~270 points-espèces (dispersés dans les vrais contours continentaux)
+	// apparaissent dès que les frontières et les listes par région sont chargées.
+	buildSpeciesPoints(d3, regions, land).then(points => {
+		speciesSelection = speciesLayer.selectAll("circle.globe-species-dot")
+			.data(points, d => d.id)
+			.join("circle")
+			.attr("class", "globe-species-dot")
+			.attr("r", 2.3)
+			.attr("fill", d => STATUS_COLORS[d.conservation_status] || "#999")
+			.on("mouseenter", (event, d) => showSpeciesTooltip(d))
+			.on("mouseleave", hideTooltip)
+			.on("click", (event, d) => {
+				event.stopPropagation();
+				hideTooltip();
+				onSpeciesSelect?.(d.id);
+			});
+		render();
+	});
 }

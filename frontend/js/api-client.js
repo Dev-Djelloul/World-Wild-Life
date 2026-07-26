@@ -31,6 +31,21 @@ export async function fetchFilters() {
 	return response.json();
 }
 
+// Récupère la totalité des espèces d'une région (pas seulement une page) : l'API plafonne
+// à 100 résultats par requête, donc on boucle sur les pages suivantes si nécessaire — aucune
+// région n'en compte autant aujourd'hui (max 77), mais ça reste correct si le jeu de données grandit.
+export async function fetchAllSpeciesInRegion(regionId) {
+	const first = await fetchSpecies({ regionId, page: 1, limit: 100 });
+	if (!first) return null;
+	if (first.pages <= 1) return first;
+
+	const rest = await Promise.all(
+		Array.from({ length: first.pages - 1 }, (_, i) => fetchSpecies({ regionId, page: i + 2, limit: 100 }))
+	);
+	const species = [first, ...rest].flatMap(r => r?.species ?? []);
+	return { ...first, species };
+}
+
 export async function fetchRegions() {
 	const response = await fetch(`${API_BASE_URL}/regions`);
 	if (!response.ok) throw new Error("Erreur lors du chargement des régions");
