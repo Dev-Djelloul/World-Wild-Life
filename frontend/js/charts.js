@@ -99,13 +99,13 @@ export async function initDashboard() {
 					labels: { boxWidth: 10, boxHeight: 10, usePointStyle: true, pointStyle: "circle", color: TEXT_COLOR, font: { size: 11 }, padding: 12 },
 				},
 				tooltip: {
-					backgroundColor: "rgba(6, 34, 51, 0.92)",
-					borderColor: "rgba(95, 227, 192, 0.4)",
+					backgroundColor: "rgba(6, 34, 51, 0.95)",
+					borderColor: "rgba(95, 227, 192, 0.5)",
 					borderWidth: 1,
 					titleColor: "#fff",
 					bodyColor: MUTED_COLOR,
-					padding: 14,
-					maxWidth: 380,
+					padding: 16,
+					maxWidth: 520,
 					displayColors: false,
 					callbacks: {
 						title: () => "",
