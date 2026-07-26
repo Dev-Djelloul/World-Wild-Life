@@ -104,9 +104,10 @@ export async function initDashboard() {
 					borderWidth: 1,
 					titleColor: "#fff",
 					bodyColor: MUTED_COLOR,
-					padding: 16,
-					maxWidth: 520,
+					padding: 18,
+					maxWidth: 800,
 					displayColors: false,
+					caretPadding: 12,
 					callbacks: {
 						title: () => "",
 						label: (context) => {
@@ -119,6 +120,7 @@ export async function initDashboard() {
 								getStatusDefinition(statusCode)
 							];
 						},
+						afterLabel: () => "",
 					},
 				},
 			},
