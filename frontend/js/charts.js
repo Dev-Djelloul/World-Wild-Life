@@ -51,6 +51,18 @@ function getStatusLabel(statusCode) {
 	return i18nInstance.t(`uicn_status.${statusCode}`);
 }
 
+function getStatusDefinition(statusCode) {
+	const defs = {
+		LC: "Least Concern (Préoccupation mineure) — Espèce évaluée avec le risque d'extinction le plus faible",
+		NT: "Near Threatened (Quasi menacée) — Espèce proche des critères de vulnérabilité",
+		VU: "Vulnerable (Vulnérable) — Espèce face à un risque d'extinction élevé",
+		EN: "Endangered (En danger) — Espèce face à un risque très élevé d'extinction imminente",
+		CR: "Critically Endangered (En danger critique) — Espèce face à un risque extrêmement élevé d'extinction",
+		DD: "Data Deficient (Données insuffisantes) — Données inadéquates pour évaluer le statut",
+	};
+	return defs[statusCode] || statusCode;
+}
+
 let statusChart = null;
 let habitatChart = null;
 
@@ -100,7 +112,19 @@ export async function initDashboard() {
 					borderWidth: 1,
 					titleColor: "#fff",
 					bodyColor: MUTED_COLOR,
-					padding: 10,
+					padding: 12,
+					callbacks: {
+						label: (context) => {
+							const statusCode = statusLabels[context.dataIndex];
+							const count = context.parsed;
+							const total = context.dataset.data.reduce((a, b) => a + b, 0);
+							const percent = Math.round((count / total) * 100);
+							return [
+								`${statusCode}: ${count} (${percent}%)`,
+								getStatusDefinition(statusCode)
+							];
+						},
+					},
 				},
 			},
 		},
@@ -143,7 +167,7 @@ export async function initDashboard() {
 						afterBody: (items) => {
 							const total = habitatData.reduce((a, b) => a + b, 0);
 							const pct = Math.round((items[0].parsed.y / total) * 100);
-							return i18nInstance.t("chart_pct_of_total", { pct });
+							return `${pct}% du total`;
 						},
 					},
 				},

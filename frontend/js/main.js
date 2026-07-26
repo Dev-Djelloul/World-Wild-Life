@@ -15,6 +15,20 @@ import { initMap } from "./map.js";
 import { initDashboard } from "./charts.js";
 import { i18nInstance } from "./i18n.js";
 
+// Définitions UICN pour les tooltips
+const IUCN_DEFINITIONS = {
+	LC: "Least Concern (Préoccupation mineure) — Espèce évaluée avec le risque d'extinction le plus faible",
+	NT: "Near Threatened (Quasi menacée) — Espèce proche des critères de vulnérabilité",
+	VU: "Vulnerable (Vulnérable) — Espèce face à un risque d'extinction élevé à l'état sauvage",
+	EN: "Endangered (En danger) — Espèce face à un risque très élevé d'extinction imminente",
+	CR: "Critically Endangered (En danger critique) — Espèce face à un risque extrêmement élevé d'extinction immédiate",
+	DD: "Data Deficient (Données insuffisantes) — Données inadéquates pour évaluer le statut de conservation",
+};
+
+function getStatusTitle(status) {
+	return IUCN_DEFINITIONS[status] || status;
+}
+
 const listEl = document.getElementById("species-list");
 const detailEl = document.getElementById("species-detail");
 const paginationEl = document.getElementById("pagination");
@@ -47,7 +61,7 @@ function renderList(species) {
 			<strong>${i18nInstance.species(s.name_common)}</strong>
 			<em>${s.name_scientific}</em>
 			<div class="status">
-				<span class="status-badge status-${s.conservation_status}">${s.conservation_status}</span>
+				<span class="status-badge status-${s.conservation_status}" title="${getStatusTitle(s.conservation_status)}">${s.conservation_status}</span>
 				${i18nInstance.habitat(s.habitat)} — ${i18nInstance.diet(s.diet)}
 			</div>
 		</li>
@@ -97,7 +111,7 @@ function renderIucnEnrichment(id, data) {
 	el.innerHTML = `
 		<h4>${i18nInstance.t("iucn_live_status")}</h4>
 		<p>
-			<span class="status-badge status-${data.iucn_status}">${data.iucn_status}</span>
+			<span class="status-badge status-${data.iucn_status}" title="${getStatusTitle(data.iucn_status)}">${data.iucn_status}</span>
 			${data.assessment_year ? i18nInstance.t("assessed_in", { year: data.assessment_year }) : ""}
 			${data.assessment_url ? `— <a href="${data.assessment_url}" target="_blank" rel="noopener">${i18nInstance.t("view_assessment")}</a>` : ""}
 		</p>
@@ -171,7 +185,7 @@ async function showDetail(id) {
 				${s.image_url ? `<img class="detail-thumb" src="${s.image_url}" alt="${i18nInstance.species(s.name_common)}">` : ""}
 				<h2>${i18nInstance.species(s.name_common)} <em>(${s.name_scientific})</em></h2>
 				<div class="detail-meta">
-					<span><span class="status-badge status-${s.conservation_status}">${s.conservation_status}</span> ${i18nInstance.t("iucn_status_label")}</span>
+					<span><span class="status-badge status-${s.conservation_status}" title="${getStatusTitle(s.conservation_status)}">${s.conservation_status}</span> ${i18nInstance.t("iucn_status_label")}</span>
 					<span><strong>${i18nInstance.t("habitat_label")}</strong> ${i18nInstance.habitat(s.habitat)}</span>
 					<span><strong>${i18nInstance.t("diet_label")}</strong> ${i18nInstance.diet(s.diet)}</span>
 					<span><strong>${i18nInstance.t("trend_label")}</strong> ${i18nInstance.trend(s.population_trend)}</span>
@@ -311,7 +325,7 @@ function renderRegionQuickList(region, data) {
 		<ul class="region-species-list">
 			${data.species.map(s => `
 				<li class="region-species-item" data-id="${s.id}" tabindex="0">
-					<span class="status-badge status-${s.conservation_status}">${s.conservation_status}</span>
+					<span class="status-badge status-${s.conservation_status}" title="${getStatusTitle(s.conservation_status)}">${s.conservation_status}</span>
 					${i18nInstance.species(s.name_common)} <em>(${s.name_scientific})</em>
 				</li>
 			`).join("")}
