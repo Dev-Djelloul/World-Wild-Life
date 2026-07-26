@@ -64,6 +64,14 @@ const translations = {
 			CR: "En danger critique",
 			DD: "Données insuffisantes",
 		},
+		uicn_definitions: {
+			LC: "Least Concern (Préoccupation mineure) — Espèce évaluée avec le risque d'extinction le plus faible",
+			NT: "Near Threatened (Quasi menacée) — Espèce proche des critères de vulnérabilité",
+			VU: "Vulnerable (Vulnérable) — Espèce face à un risque d'extinction élevé",
+			EN: "Endangered (En danger) — Espèce face à un risque très élevé d'extinction imminente",
+			CR: "Critically Endangered (En danger critique) — Espèce face à un risque extrêmement élevé d'extinction",
+			DD: "Data Deficient (Données insuffisantes) — Données inadéquates pour évaluer le statut",
+		},
 		habitat_names: {
 			"Désert": "Désert",
 			"Forêt tempérée": "Forêt tempérée",
@@ -416,6 +424,14 @@ const translations = {
 			CR: "Critically Endangered",
 			DD: "Data Deficient",
 		},
+		uicn_definitions: {
+			LC: "Least Concern — Species evaluated with the lowest risk of extinction",
+			NT: "Near Threatened — Species close to vulnerable criteria",
+			VU: "Vulnerable — Species facing a high risk of extinction in the wild",
+			EN: "Endangered — Species facing a very high risk of imminent extinction",
+			CR: "Critically Endangered — Species facing an extremely high risk of immediate extinction",
+			DD: "Data Deficient — Inadequate data to assess conservation status",
+		},
 		habitat_names: {
 			"Désert": "Desert",
 			"Forêt tempérée": "Temperate Forest",
@@ -767,6 +783,14 @@ const translations = {
 			EN: "Peligro",
 			CR: "Peligro Crítico",
 			DD: "Datos Insuficientes",
+		},
+		uicn_definitions: {
+			LC: "Least Concern (Preocupación Menor) — Especie evaluada con el menor riesgo de extinción",
+			NT: "Near Threatened (Casi Amenazada) — Especie cercana a los criterios de vulnerabilidad",
+			VU: "Vulnerable — Especie enfrentando un alto riesgo de extinción en la naturaleza",
+			EN: "Endangered (Peligro) — Especie enfrentando un riesgo muy alto de extinción inminente",
+			CR: "Critically Endangered (Peligro Crítico) — Especie enfrentando un riesgo extremadamente alto de extinción inmediata",
+			DD: "Data Deficient (Datos Insuficientes) — Datos inadecuados para evaluar el estado de conservación",
 		},
 		habitat_names: {
 			"Désert": "Desierto",

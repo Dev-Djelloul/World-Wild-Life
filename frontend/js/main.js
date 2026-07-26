@@ -15,18 +15,8 @@ import { initMap } from "./map.js";
 import { initDashboard } from "./charts.js";
 import { i18nInstance } from "./i18n.js";
 
-// Définitions UICN pour les tooltips
-const IUCN_DEFINITIONS = {
-	LC: "Least Concern (Préoccupation mineure) — Espèce évaluée avec le risque d'extinction le plus faible",
-	NT: "Near Threatened (Quasi menacée) — Espèce proche des critères de vulnérabilité",
-	VU: "Vulnerable (Vulnérable) — Espèce face à un risque d'extinction élevé à l'état sauvage",
-	EN: "Endangered (En danger) — Espèce face à un risque très élevé d'extinction imminente",
-	CR: "Critically Endangered (En danger critique) — Espèce face à un risque extrêmement élevé d'extinction immédiate",
-	DD: "Data Deficient (Données insuffisantes) — Données inadéquates pour évaluer le statut de conservation",
-};
-
 function getStatusTitle(status) {
-	return IUCN_DEFINITIONS[status] || status;
+	return i18nInstance.t(`uicn_definitions.${status}`) || status;
 }
 
 const listEl = document.getElementById("species-list");
