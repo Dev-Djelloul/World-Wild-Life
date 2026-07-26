@@ -51,6 +51,8 @@ const translations = {
 		loading_species_in_region: "Chargement des espèces en {region}…",
 		view_species_in: "Voir les espèces en {region}",
 		globe_hint: "Faites glisser pour tourner le globe · cliquez sur un repère",
+		zoom_in: "Zoomer",
+		zoom_out: "Dézoomer",
 
 		chart_species_center: "espèces",
 		chart_species_dataset_label: "Nombre d'espèces",
@@ -411,6 +413,8 @@ const translations = {
 		loading_species_in_region: "Loading species in {region}…",
 		view_species_in: "View species in {region}",
 		globe_hint: "Drag to rotate the globe · click a marker",
+		zoom_in: "Zoom in",
+		zoom_out: "Zoom out",
 
 		chart_species_center: "species",
 		chart_species_dataset_label: "Number of species",
@@ -771,6 +775,8 @@ const translations = {
 		loading_species_in_region: "Cargando especies en {region}…",
 		view_species_in: "Ver especies en {region}",
 		globe_hint: "Arrastra para girar el globo · haz clic en un marcador",
+		zoom_in: "Acercar",
+		zoom_out: "Alejar",
 
 		chart_species_center: "especies",
 		chart_species_dataset_label: "Número de especies",

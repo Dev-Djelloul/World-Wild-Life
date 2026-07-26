@@ -176,6 +176,21 @@ export async function initMap(onRegionSelect, onSpeciesSelect) {
 	hint.textContent = i18nInstance.t("globe_hint");
 	mapEl.appendChild(hint);
 
+	const zoomControls = document.createElement("div");
+	zoomControls.className = "globe-zoom-controls";
+	const zoomInBtn = document.createElement("button");
+	zoomInBtn.type = "button";
+	zoomInBtn.className = "globe-zoom-btn";
+	zoomInBtn.setAttribute("aria-label", i18nInstance.t("zoom_in"));
+	zoomInBtn.textContent = "+";
+	const zoomOutBtn = document.createElement("button");
+	zoomOutBtn.type = "button";
+	zoomOutBtn.className = "globe-zoom-btn";
+	zoomOutBtn.setAttribute("aria-label", i18nInstance.t("zoom_out"));
+	zoomOutBtn.textContent = "−";
+	zoomControls.append(zoomOutBtn, zoomInBtn);
+	mapEl.appendChild(zoomControls);
+
 	const svg = d3.select(mapEl).append("svg").attr("class", "globe-svg");
 	const defs = svg.append("defs");
 
@@ -393,10 +408,23 @@ export async function initMap(onRegionSelect, onSpeciesSelect) {
 			if (event.sourceEvent) stopAutoRotation();
 			zoomRatio = event.transform.k;
 			projection.scale(baseScale * zoomRatio);
+			zoomInBtn.disabled = zoomRatio >= MAX_SCALE_RATIO;
+			zoomOutBtn.disabled = zoomRatio <= MIN_SCALE_RATIO;
 			render();
 		});
 
 	svg.call(drag).call(zoom).on("dblclick.zoom", null);
+
+	zoomInBtn.addEventListener("click", () => {
+		stopAutoRotation();
+		hideTooltip();
+		svg.call(zoom.scaleBy, 1.4);
+	});
+	zoomOutBtn.addEventListener("click", () => {
+		stopAutoRotation();
+		hideTooltip();
+		svg.call(zoom.scaleBy, 1 / 1.4);
+	});
 
 	sizeToContainer();
 	render();
